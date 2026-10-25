@@ -2,6 +2,7 @@ package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
 import com.xietee.common.Result;
+import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.ui.AppUI;
 
@@ -42,12 +43,12 @@ public class search implements Cmd {
         final AppUI ui = app.getUi();
 
         if (object.isEmpty()) {
-            ui.barPrintOption("要查询的对象是? \n[0]取消 \n[1]学生 \n[2]楼栋 \n[3]宿舍 \n[4]床位 \n[5]报修单");
+            ui.barPrintOption("要查询的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
             object = ui.readInput("Option > ").trim();
             if (object.equals("0")) {
                 return Result.success("", null);
             } else if (object.isEmpty()) {
-                return Result.warn(NOT_A_NUMBER);
+                return Result.warn(INVALID_NUMBER);
             }
         }
 
@@ -60,12 +61,32 @@ public class search implements Cmd {
             }
 
             // 搜索要操作的对象 让用户选择 返回序号和搜索结果
-            List<Student> students = new ArrayList<>(app.getStudentService().fuzzySearchStudent(keyword));
+            List<Student> students = new ArrayList<>(app.getAdminService().fuzzySearchStudent(keyword));
             // 查不到就返回 交给其他函数处理
             if (students.isEmpty()) return Result.warn(STUDENT_NOT_FOUND);
 
             // 数据可视化
             List<String> lines = new ArrayList<>(students.stream().map(Student::toString).toList());
+
+            ui.consoleWriteTitle("查询结果");
+            ui.consoleWriteList(lines);
+
+            return Result.success("查询成功", null);
+        } else if (object.equals("book") || object.equals("2")) {
+
+            if (keyword.isEmpty()) {
+
+                ui.barPrintOption("模糊搜索(ISBN-13 书名 作者)");
+                keyword = ui.readInput("Keyword > ").trim();
+            }
+
+            // 搜索要操作的对象 让用户选择 返回序号和搜索结果
+            List<Book> books = new ArrayList<>(app.getAdminService().fuzzySearchBook(keyword));
+            // 查不到就返回 交给其他函数处理
+            if (books.isEmpty()) return Result.warn(BOOK_NOT_FOUND);
+
+            // 数据可视化
+            List<String> lines = new ArrayList<>(books.stream().map(Book::toString).toList());
 
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(lines);

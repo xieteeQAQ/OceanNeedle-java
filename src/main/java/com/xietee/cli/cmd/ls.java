@@ -2,6 +2,7 @@ package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
 import com.xietee.common.Result;
+import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.ui.AppUI;
 
@@ -48,18 +49,25 @@ public class ls implements Cmd {
         final AppUI ui = app.getUi();
 
         if (object.isEmpty()) {
-            ui.barPrintOption("要列出的对象是? \n[0]取消 \n[1]学生 \n[2]楼栋 \n[3]宿舍 \n[4]床位 \n[5]报修单");
+            ui.barPrintOption("要列出的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
             object = ui.readInput("Option > ").trim();
             if (object.equals("0")) {
                 return Result.success("", null);
             } else if (object.isEmpty()) {
-                return Result.warn(NOT_A_NUMBER);
+                return Result.warn(INVALID_NUMBER);
             }
         }
 
         if (object.equals("student") || object.equals("1")) {
-            List<Student> allStudents = app.getStudentService().findAll();
+            List<Student> allStudents = app.getAdminService().findAllStudent();
             List<String> visualized = allStudents.stream().map(Student::toString).toList();
+            ui.consoleWriteTitle("查询结果");
+            ui.consoleWriteList(visualized);
+
+            return Result.success(NONE);
+        } else if (object.equals("book") || object.equals("2")) {
+            List<Book> allStudents = app.getAdminService().findAllBook();
+            List<String> visualized = allStudents.stream().map(Book::toString).toList();
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(visualized);
 

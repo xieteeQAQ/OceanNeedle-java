@@ -31,6 +31,7 @@
              按接口路径自动加载 XML，所以这里必须用 resource 显式注册；
              只写 <mapper class="..."/> 会报 "Invalid bound statement (not found)"。 -->
         <mapper resource="com/xietee/mapper/StudentMapper.xml"/>
+        <mapper resource="com/xietee/mapper/BookMapper.xml"/>
     </mappers>
 
 </configuration>

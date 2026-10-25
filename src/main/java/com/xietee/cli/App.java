@@ -19,7 +19,7 @@ public class App {
 
     @Getter @Setter private boolean running;
 
-    @Getter private final AdminService studentService;
+    @Getter private final AdminService adminService;
 
     @Getter private final AppUI ui;
 
@@ -28,9 +28,9 @@ public class App {
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
-    public App(AdminService studentService) throws IOException {
+    public App(AdminService adminService) throws IOException {
         this.running = true;
-        this.studentService = studentService;
+        this.adminService = adminService;
         this.ui = new AppUI();
         this.command = new Command(this);
 

@@ -15,13 +15,14 @@ public enum BusinessExceptionEnum implements StatusCode {
     STUDENT_NOT_FOUND(2001, "未查找到学生"),
     STUDENT_ID_EXISTED(2002, "所填学号已存在"),
     STUDENT_CONTRACT_NUMBER_EXISTED(2003, "所填电话号码已存在"),
+    BOOK_NOT_FOUND(2004, "未查找到书籍"),
 
     // 非法参数错误码
     COMMAND_ERROR(4001, "无效命令"),
     COMMAND_PARAM_ERROR(4002, "无效参数"),
     COMMAND_NEED_PARAM(4003, "该命令需要参数"),
     OUT_OF_RANGE(4004, "应输入在范围之内的序号"),
-    NOT_A_NUMBER(4005, "应输入数字"),
+    INVALID_NUMBER(4005, "应输入正整数"),
     COMMAND_UNEXISTED(4006, "要查询的命令不存在"),
 
     // 系统错误码

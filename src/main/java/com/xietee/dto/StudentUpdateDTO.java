@@ -12,7 +12,7 @@ public record StudentUpdateDTO(
         String password,
 
         @NotBlank(message = "电话号码不能为空")
-        @Size(max = 20, message = "电话号码不能超过 20 位数")
+        @Size(max = 11,  min = 11, message = "电话号码应为 11 位数")
         String phoneNumber) {
 
         public boolean equals(Student student) {

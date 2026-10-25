@@ -1,8 +1,12 @@
 package com.xietee.service;
 
+import com.xietee.dao.BookMapper;
 import com.xietee.dao.StudentMapper;
+import com.xietee.dto.BookSaveDTO;
+import com.xietee.dto.BookUpdateDTO;
 import com.xietee.dto.StudentSaveDTO;
 import com.xietee.dto.StudentUpdateDTO;
+import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 
@@ -15,12 +19,17 @@ import static com.xietee.exception.BusinessExceptionEnum.*;
 public class AdminService {
 
     private final StudentMapper studentMapper;
+    private final BookMapper bookMapper;
 
-    public AdminService(StudentMapper studentMapper) {
+    public AdminService(StudentMapper studentMapper, BookMapper bookMapper) {
         this.studentMapper = studentMapper;
+        this.bookMapper = bookMapper;
     }
 
-    public List<Student> findAll() {
+    /*
+    操作学生数据
+     */
+    public List<Student> findAllStudent() {
         List<Student> students = studentMapper.findAll();
 
         if (students.isEmpty()) {
@@ -29,7 +38,7 @@ public class AdminService {
         return students;
     }
 
-    public Student findById(long id) {
+    public Student findStudentById(long id) {
         Student student = studentMapper.findById(id).orElseThrow(
                 () -> new BusinessException(
                         STUDENT_NOT_FOUND.getCode(),
@@ -37,7 +46,7 @@ public class AdminService {
         return student;
     }
 
-    public Student findByStudentID(String studentID) {
+    public Student findStudentByStudentID(String studentID) {
         Student student = studentMapper.findByStudentID(studentID).orElseThrow(
                 () -> new BusinessException(
                         STUDENT_NOT_FOUND.getCode(),
@@ -45,7 +54,7 @@ public class AdminService {
         return student;
     }
 
-    public List<Student> findByName(String name) {
+    public List<Student> findStudentByName(String name) {
         List<Student> students = studentMapper.findByName(name);
         if (students.isEmpty()) {
             throw new BusinessException(
@@ -55,7 +64,7 @@ public class AdminService {
         return students;
     }
 
-    public Student findByContractNumber(String contractNumber) {
+    public Student findStudentByContractNumber(String contractNumber) {
         Student student = studentMapper.findByPhoneNumber(contractNumber).orElseThrow(
                 () -> new BusinessException(
                         STUDENT_NOT_FOUND.getCode(),
@@ -72,7 +81,7 @@ public class AdminService {
         return studentMapper.insertStudent(student);
     }
 
-    public int updateById(Long id, StudentUpdateDTO studentUpdateDTO) {
+    public int updateStudentById(Long id, StudentUpdateDTO studentUpdateDTO) {
         Student student = studentMapper.findById(id).orElseThrow(
                 () -> new BusinessException(UPDATE_FAIL));
 
@@ -83,14 +92,14 @@ public class AdminService {
         return studentMapper.updateById(student);
     }
 
-    public int deleteById(Long id) {
+    public int deleteStudentById(Long id) {
         return studentMapper.deleteById(id);
     }
 
     // 模糊搜索
     public List<Student> fuzzySearchStudent (String keyword) {
 
-        List<Student> allStudents = findAll();
+        List<Student> allStudents = findAllStudent();
         if (keyword.isEmpty()) return allStudents;
 
         List<Student> result = new ArrayList<>();
@@ -116,5 +125,111 @@ public class AdminService {
 
         Optional<Student> student = studentMapper.findByPhoneNumber(phoneNumber);
         return student.isPresent();
+    }
+
+    /*
+    操作书籍数据
+     */
+    public List<Book> findAllBook() {
+        List<Book> books = bookMapper.findAll();
+
+        if (books.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+        return books;
+    }
+
+    public Book findBookById(Long id) {
+        Book book = bookMapper.findById(id).orElseThrow(
+                () -> new BusinessException(
+                        BOOK_NOT_FOUND.getCode(),
+                        BOOK_NOT_FOUND.getMessage() + " id: " + id));
+        return book;
+    }
+
+    public List<Book> findBookByISBN(String ISBN) {
+        List<Book> books = bookMapper.findByISBN(ISBN);
+        if (books.isEmpty()) {
+            throw new BusinessException(
+                    BOOK_NOT_FOUND.getCode(),
+                    BOOK_NOT_FOUND.getMessage() + " ISBN: " + ISBN);
+        }
+        return books;
+    }
+
+    public List<Book> findBookByTitle(String title) {
+        List<Book> books = bookMapper.findByTitle(title);
+        if (books.isEmpty()) {
+            throw new BusinessException(
+                    BOOK_NOT_FOUND.getCode(),
+                    BOOK_NOT_FOUND.getMessage() + " 书名: " + title);
+        }
+        return books;
+    }
+
+    public List<Book> findBookByAuthor(String author) {
+        List<Book> books = bookMapper.findByAuthor(author);
+        if (books.isEmpty()) {
+            throw new BusinessException(
+                    BOOK_NOT_FOUND.getCode(),
+                    BOOK_NOT_FOUND.getMessage() + " 书籍作者: " + author);
+        }
+        return books;
+    }
+
+    public List<Book> findBookByAvailable(boolean available) {
+        List<Book> books = bookMapper.findByAvailable(available);
+        if (books.isEmpty()) {
+            throw new BusinessException(
+                    BOOK_NOT_FOUND.getCode(),
+                    BOOK_NOT_FOUND.getMessage() + " 是否借出: " + Book.map(available));
+        }
+        return books;
+    }
+
+    // 模糊搜索
+    public List<Book> fuzzySearchBook (String keyword) {
+
+        List<Book> allBooks = findAllBook();
+        if (keyword.isEmpty()) return allBooks;
+
+        List<Book> result = new ArrayList<>();
+
+        for (var book : allBooks) {
+            if (book.getISBN().contains(keyword)
+                    || book.getTitle().contains(keyword)
+                    || book.getAuthor().contains(keyword)) {
+                result.add(book);
+            }
+        }
+
+        return result;
+    }
+
+    // 添加
+    public int insertBook(BookSaveDTO bookSaveDTO) {
+        Book book = new Book(
+                null, bookSaveDTO.ISBN(),
+                bookSaveDTO.title(),
+                bookSaveDTO.author(),
+                bookSaveDTO.available(), null, null);
+        return bookMapper.insertBook(book);
+    }
+
+    // 更新
+    public int updateBookById(Long id ,BookUpdateDTO bookUpdateDTO) {
+        Book book = bookMapper.findById(id).orElseThrow(
+                () -> new BusinessException(UPDATE_FAIL));
+
+        book.setTitle(bookUpdateDTO.title());
+        book.setAuthor(bookUpdateDTO.author());
+        book.setAvailable(bookUpdateDTO.available());
+
+        return bookMapper.updateById(book);
+    }
+
+    // 删除
+    public int deleteBookById(Long id) {
+        return bookMapper.deleteById(id);
     }
 }

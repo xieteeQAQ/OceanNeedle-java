@@ -16,6 +16,7 @@ public class Command {
 
         commandsMap.put("help", new help(app));
         commandsMap.put("quit", new quit(app));
+        commandsMap.put("exit", new quit(app));
         commandsMap.put("clear", new clear(app));
         commandsMap.put("ls", new ls(app));
         commandsMap.put("add", new add(app));
