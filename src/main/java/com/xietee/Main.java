@@ -1,0 +1,51 @@
+package com.xietee;
+
+import com.xietee.cli.App;
+import com.xietee.dao.StudentMapper;
+import com.xietee.service.AdminService;
+import com.xietee.ui.AnsiColors;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+
+public class Main {
+
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+    /** SqlSessionFactory 昂贵且线程安全，整个应用只应该建一个。 */
+    private static final SqlSessionFactory SQL_SESSION_FACTORY = buildSqlSessionFactory();
+
+    private static SqlSessionFactory buildSqlSessionFactory() {
+        // mybatis-config.xml 位于 src/main/resources，会被打包到 classpath 根目录
+        try (InputStream in = Resources.getResourceAsStream("mybatis-config.xml")) {
+            return new SqlSessionFactoryBuilder().build(in);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "加载 mybatis-config.xml 失败，请检查 src/main/resources/ 下的 mybatis-config.xml 与 jdbc.properties", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        try (SqlSession session = SQL_SESSION_FACTORY.openSession(true)) { // true = 自动提交
+            StudentMapper studentMapper = session.getMapper(StudentMapper.class);
+            AdminService studentService = new AdminService(studentMapper);
+
+            runApp(studentService);
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            System.out.println(AnsiColors.BRIGHT_RED + "程序异常" + AnsiColors.RESET);
+        }
+    }
+
+    private static void runApp(AdminService studentService) throws Exception {
+        App app = new App(studentService);
+
+        app.run();
+    }
+}

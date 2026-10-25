@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xietee.dao.BookMapper">
+    <!--    查询-->
+    <select id="findAll" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book
+    </select>
+    <select id="findById" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book where id = #{id}
+    </select>
+    <select id="findByISBN" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book where ISBN = #{ISBN}
+    </select>
+    <select id="findByTitle" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book where title = #{title}
+    </select>
+    <select id="findByAuthor" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book where author = #{author}
+    </select>
+    <select id="findByAvailable" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book where available = #{available}
+    </select>
+
+    <!--    插入-->
+    <insert id="insertBook">
+        insert into book(ISBN, title, author, available) VALUES (#{ISBN}, #{title}, #{author}, #{available})
+    </insert>
+
+    <!--    更新-->
+    <update id="updateById">
+        update book set title = #{title}, author = #{author}, available = #{available} where id = #{id};
+    </update>
+
+    <!--    删除-->
+    <delete id="deleteById">
+        delete from book where id = #{id};
+    </delete>
+</mapper>

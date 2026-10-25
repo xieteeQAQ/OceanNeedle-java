@@ -1,0 +1,1 @@
+java -jar target/itaemAssessment-1.0-SNAPSHOT.jar

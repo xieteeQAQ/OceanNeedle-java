@@ -1,0 +1,13 @@
+        ls [object]                         -- 列出所有
+
+        search [object] [keyword]           -- 搜索对象
+
+        add [object]                        -- 添加对象
+
+        update [object] [keyword]           -- 更新对象
+
+        del [object] [keyword]              -- 删除对象
+
+        help [commandName]                  -- 查看命令使用方法
+
+        exit/quit                           -- 退出程序

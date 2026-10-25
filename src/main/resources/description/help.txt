@@ -1,0 +1,12 @@
+    > help [commandName]
+
+        描述
+            帮助命令, 列出命令的描述和用法, 输入 [commandName] 参数可查看具体命令的详细信息
+
+        [commandName]
+            当 [commandName] 为一个具体的命令时, help 命令则会列出该命令的详细介绍和使用方法,
+            但如果输入的命令不存在, 则会在终端打印警告信息
+
+            all
+                all 不是命令, 而是表示所有命令, 在 [commandName] 为空时补上, 和手动输入 all 效果一样
+                当 [commandName] 为 all 时, help 命令则会列出所有命令的简单介绍和使用方法

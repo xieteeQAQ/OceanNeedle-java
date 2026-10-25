@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!-- 把 jdbc.properties 里的值以 ${jdbc.xxx} 的形式引用进来 -->
+    <properties resource="jdbc.properties"/>
+
+    <settings>
+        <!-- 数据库的 studentID / phoneNumber 这种驼峰列名能对上实体，这里开着以后加下划线列也不踩坑 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <environments default="development">
+        <environment id="development">
+            <!-- 手动提交/回滚；没有 Spring 时用 JDBC 事务最直观 -->
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!-- StudentMapper 的 SQL 写在 com/xietee/mapper/StudentMapper.xml 里。
+             它和接口 com.xietee.dao.StudentMapper 不在同一个包下，MyBatis 不会
+             按接口路径自动加载 XML，所以这里必须用 resource 显式注册；
+             只写 <mapper class="..."/> 会报 "Invalid bound statement (not found)"。 -->
+        <mapper resource="com/xietee/mapper/StudentMapper.xml"/>
+    </mappers>
+
+</configuration>

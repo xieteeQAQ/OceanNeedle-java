@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    日志只写文件，不写控制台。
+    原因：CLI 的终端被 JLine 独占（prompt / 状态栏 / 重绘），任何直接写 System.out / System.err
+    的日志都会把界面撕坏，所以 root 上只挂 FILE appender。
+
+    想临时在控制台看日志：启动时用 -Dlogback.configurationFile=/path/to/logback-console.xml
+    覆盖本文件即可，不用改代码、不用重新打包。
+-->
+<configuration>
+
+    <!-- 日志目录：默认 ~/.linwo/logs；想放项目里就改成 <property name="LOG_DIR" value="logs"/> -->
+    <property name="LOG_DIR" value="logs"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/app.log</file>
+
+        <!-- 按天 + 按大小滚动：app.2026-10-20.0.log、app.2026-10-20.1.log ... -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.ibatis" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>
