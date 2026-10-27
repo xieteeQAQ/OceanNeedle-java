@@ -33,9 +33,7 @@ public class Book {
         String string;
 
         if (availableCount != null && totalCount != null) {
-            string = " 序号: "
-                    + id
-                    + "ISBN: "
+            string = "ISBN: "
                     + ISBN
                     + " 书名: "
                     + title

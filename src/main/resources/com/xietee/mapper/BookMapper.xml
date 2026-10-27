@@ -23,115 +23,148 @@
     <select id="findByAvailable" resultType="com.xietee.entity.Book">
         select id, ISBN, title, author, available from book where available = #{available}
     </select>
-
-    <!--    有没有借出的都可以查-->
-    <select id="findWithCountById" resultType="com.xietee.entity.Book">
-        SELECT id,
+    <select id="fuzzySearch" resultType="com.xietee.entity.Book">
+        <bind name="pattern" value="'%' + keyword + '%'"/>
+        select id,
                ISBN,
                title,
                author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+               available
+        from book
+        where ISBN like #{pattern}
+        OR title like #{pattern}
+        OR author like #{pattern}
+    </select>
+
+    <!--    有没有借出的都可以查-->
+    <select id="findAllWithCount" resultType="com.xietee.entity.Book">
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE id = #{id}
+        GROUP BY ISBN
     </select>
 
     <select id="findWithCountByISBN" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
         WHERE ISBN = #{ISBN}
+        GROUP BY ISBN
     </select>
 
     <select id="findWithCountByTitle" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        <bind name="pattern" value="'%' + title + '%'"/>
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE title = #{title}
+        WHERE title like #{pattern}
+        GROUP BY ISBN
     </select>
 
     <select id="findWithCountByAuthor" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        <bind name="pattern" value="'%' + author + '%'"/>
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE author = #{author}
+        WHERE author like #{pattern}
+        GROUP BY ISBN
     </select>
 
     <select id="findWithCountByAvailable" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
         WHERE available = #{available}
+        GROUP BY ISBN
+    </select>
+
+    <select id="fuzzySearchWithCount" resultType="com.xietee.entity.Book">
+        <bind name="pattern" value="'%' + keyword + '%'"/>
+        SELECT ISBN,
+            ANY_VALUE(title)                               AS title,
+            ANY_VALUE(author)                              AS author,
+            COUNT(*)                                       AS totalCount,
+            SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+            MAX(available)                                 AS available
+        FROM book
+        WHERE ISBN like #{pattern}
+        OR title like #{pattern}
+        OR author like #{pattern}
+        GROUP BY ISBN
     </select>
 
     <!--    只查可以借的-->
-    <select id="findAvailableWithCountById" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+    <select id="findAllAvailableWithCount" resultType="com.xietee.entity.Book">
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE id = #{id} and available = 1
+        GROUP BY ISBN
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
     </select>
 
     <select id="findAvailableWithCountByISBN" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE ISBN = #{ISBN} and available = 1
+        WHERE ISBN = #{ISBN}
+        GROUP BY ISBN
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
     </select>
 
     <select id="findAvailableWithCountByTitle" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        <bind name="pattern" value="'%' + title + '%'"/>
+        SELECT ISBN,
+               ANY_VALUE(title)                               AS title,
+               ANY_VALUE(author)                              AS author,
+               COUNT(*)                                       AS totalCount,
+               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+               MAX(available)                                 AS available
         FROM book
-        WHERE title = #{title} and available = 1
+        WHERE title like #{pattern}
+        GROUP BY ISBN
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
     </select>
 
     <select id="findAvailableWithCountByAuthor" resultType="com.xietee.entity.Book">
-        SELECT id,
-               ISBN,
-               title,
-               author,
-               available,
-               COUNT(*) OVER ()                     AS totalCount,
-               SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) OVER () AS availableCount
+        <bind name="pattern" value="'%' + author + '%'"/>
+        SELECT ISBN,
+            ANY_VALUE(title)                               AS title,
+            ANY_VALUE(author)                              AS author,
+            COUNT(*)                                       AS totalCount,
+            SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+            MAX(available)                                 AS available
         FROM book
-        WHERE author = #{author} and available = 1
+        WHERE author like #{pattern}
+        GROUP BY ISBN
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
     </select>
 
     <!--    插入-->

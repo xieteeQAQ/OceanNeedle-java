@@ -21,6 +21,8 @@ public class search implements Cmd {
 
     private String keyword = "";
 
+    private boolean allBook = false;
+
     private final Set<String> objects = new HashSet<>(Set.of(
             "student", "admin", "developer", "record", "book"
     ));
@@ -33,6 +35,7 @@ public class search implements Cmd {
     public void reset() {
         this.object = "";
         this.keyword = "";
+        this.allBook = false;
     }
 
 
@@ -80,8 +83,13 @@ public class search implements Cmd {
                 keyword = ui.readInput("Keyword > ").trim();
             }
 
+            List<Book> books;
             // 搜索要操作的对象 让用户选择 返回序号和搜索结果
-            List<Book> books = new ArrayList<>(app.getAdminService().fuzzySearchBook(keyword));
+            if (allBook) {
+                books = new ArrayList<>(app.getAdminService().fuzzySearchBook(keyword));
+            } else {
+                books = new ArrayList<>(app.getAdminService().fuzzySearchBookWithCount(keyword));
+            }
             // 查不到就返回 交给其他函数处理
             if (books.isEmpty()) return Result.warn(BOOK_NOT_FOUND);
 
@@ -103,16 +111,23 @@ public class search implements Cmd {
         if (args.isEmpty()) {
             return Result.success(NONE);
         }
-        String argsObject = args.getFirst();
 
-        if (objects.contains(argsObject)) {
-            this.object = argsObject;
-        } else {
-            return Result.warn(COMMAND_PARAM_ERROR);
-        }
+        for (int i = 0; i < args.size(); i++) {
 
-        if (args.size() > 1) {
-            keyword = args.get(1);
+            String arg = args.get(i);
+            if (i == 0) {
+                if (objects.contains(arg)) {
+                    this.object = arg;
+                } else {
+                    return Result.warn(COMMAND_PARAM_ERROR);
+                }
+            } else if (i == 1) {
+                keyword = args.get(1);
+            } else if (i == 2) {
+                if (object.equals("book") && arg.equals("--all")) {
+                    allBook = true;
+                }
+            }
         }
 
         return Result.success(NONE);

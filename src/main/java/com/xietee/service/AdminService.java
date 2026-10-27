@@ -187,23 +187,28 @@ public class AdminService {
         return books;
     }
 
+    public List<Book> findAllBookWithCount() {
+        List<Book> books = bookMapper.findAllWithCount();
+
+        if (books.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+        return books;
+    }
+
     // 模糊搜索
     public List<Book> fuzzySearchBook (String keyword) {
 
-        List<Book> allBooks = findAllBook();
-        if (keyword.isEmpty()) return allBooks;
+        if (keyword.isEmpty()) return findAllBook();
 
-        List<Book> result = new ArrayList<>();
+        return bookMapper.fuzzySearch(keyword);
+    }
 
-        for (var book : allBooks) {
-            if (book.getISBN().contains(keyword)
-                    || book.getTitle().contains(keyword)
-                    || book.getAuthor().contains(keyword)) {
-                result.add(book);
-            }
-        }
+    public List<Book> fuzzySearchBookWithCount(String keyword) {
 
-        return result;
+        if (keyword.isEmpty()) return findAllBookWithCount();
+
+        return bookMapper.fuzzySearchWithCount(keyword);
     }
 
     // 添加

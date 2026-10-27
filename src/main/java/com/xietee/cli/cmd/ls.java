@@ -18,6 +18,8 @@ public class ls implements Cmd {
 
     private String object = "";
 
+    private boolean allBook = false;
+
     private final Set<String> objects = new HashSet<>(Set.of(
             "student", "admin", "developer", "record", "book"
     ));
@@ -33,14 +35,22 @@ public class ls implements Cmd {
             return Result.success(NONE);
         }
 
-        String argsObject = args.getFirst();
+        for (int i = 0; i < args.size(); i++) {
 
-        if (objects.contains(argsObject)) {
-            this.object = argsObject;
-            return Result.success(NONE);
-        } else {
-            return Result.warn(COMMAND_PARAM_ERROR);
+            String arg = args.get(i);
+            if (i == 0) {
+                if (objects.contains(arg)) {
+                    this.object = arg;
+                } else {
+                    return Result.warn(COMMAND_PARAM_ERROR);
+                }
+            } else if (i == 1) {
+                if (object.equals("book") && arg.equals("--all")) {
+                    allBook = true;
+                }
+            }
         }
+        return Result.success(NONE);
     }
 
     @Override
@@ -66,8 +76,17 @@ public class ls implements Cmd {
 
             return Result.success(NONE);
         } else if (object.equals("book") || object.equals("2")) {
-            List<Book> allStudents = app.getAdminService().findAllBook();
-            List<String> visualized = allStudents.stream().map(Book::toString).toList();
+
+            List<Book> allBooks;
+
+            if (allBook) {
+                allBooks = app.getAdminService().findAllBook();
+            } else {
+                allBooks = app.getAdminService().findAllBookWithCount();
+            }
+
+            List<String> visualized = allBooks.stream().map(Book::toString).toList();
+
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(visualized);
 
@@ -80,5 +99,6 @@ public class ls implements Cmd {
     @Override
     public void reset() {
         this.object = "";
+        this.allBook = false;
     }
 }

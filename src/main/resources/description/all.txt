@@ -10,4 +10,4 @@
 
         help [commandName]                  -- 查看命令使用方法
 
-        exit/quit                           -- 退出程序
+        quit                                -- 退出程序
