@@ -35,6 +35,23 @@
         OR title like #{pattern}
         OR author like #{pattern}
     </select>
+    <select id="findAllAvailable" resultType="com.xietee.entity.Book">
+        select id, ISBN, title, author, available from book
+        where available = 1
+    </select>
+    <select id="fuzzySearchAvailable" resultType="com.xietee.entity.Book">
+        <bind name="pattern" value="'%' + keyword + '%'"/>
+        select id,
+               ISBN,
+               title,
+               author,
+               available
+        from book
+        where ISBN like #{pattern}
+        OR title like #{pattern}
+        OR author like #{pattern}
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
+    </select>
 
     <!--    有没有借出的都可以查-->
     <select id="findAllWithCount" resultType="com.xietee.entity.Book">

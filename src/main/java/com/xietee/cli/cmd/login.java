@@ -1,16 +1,15 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
+import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 import com.xietee.ui.AppUI;
 import com.xietee.util.TimeUtils;
 
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
@@ -38,6 +37,9 @@ public class login implements Cmd {
             ui.barPrintOption("你是 \n[0]取消 \n[1]学生 \n[2]管理员");
             user = ui.readInput("Option > ").trim();
             if (user.equals("0")) {
+                if (app.getUser() == UserType.NULL) {
+                    app.setRunning(false);
+                }
                 return Result.success("", null);
             } else if (user.isEmpty()) {
                 return Result.warn(INVALID_NUMBER);
@@ -69,6 +71,7 @@ public class login implements Cmd {
             }
 
             if (student.getPassword().equals(password)) {
+                app.setUser(UserType.STUDENT);
                 String message = String.format("登录成功 %s好, %s", TimeUtils.nowTime(), student.getName());
                 return Result.success(message, null);
             } else {
@@ -77,7 +80,7 @@ public class login implements Cmd {
         } else if (user.equals("admin") || user.equals("2")) {
             return Result.warn(FEATURE_NOT_DEVELOPED);
         } else {
-            return Result.warn(PARAM_ERROR);
+            return Result.warn(OUT_OF_RANGE);
         }
     }
 

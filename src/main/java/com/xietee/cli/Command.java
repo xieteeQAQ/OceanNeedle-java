@@ -2,6 +2,8 @@ package com.xietee.cli;
 
 import com.xietee.cli.cmd.*;
 import com.xietee.common.Result;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -9,21 +11,58 @@ import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class Command {
 
-    private static final Map<String, Cmd> commandsMap =
+    private static final Map<String, Cmd> GeneralCommandsMap =
             new HashMap<>();
+    private static final Map<String, Cmd> StudentCommandsMap =
+            new HashMap<>();
+    private static final Map<String, Cmd> AdminCommandsMap =
+            new HashMap<>();
+    private @Getter @Setter UserType user;
 
     public Command(App app) {
 
-        commandsMap.put("help", new help(app));
-        commandsMap.put("quit", new quit(app));
-        commandsMap.put("exit", new quit(app));
-        commandsMap.put("clear", new clear(app));
-        commandsMap.put("ls", new ls(app));
-        commandsMap.put("add", new add(app));
-        commandsMap.put("search", new search(app));
-        commandsMap.put("update", new update(app));
-        commandsMap.put("del", new del(app));
-        commandsMap.put("login", new login(app));
+        this.user = app == null ? UserType.NULL : app.getUser();
+
+        GeneralCommandsMap.put("help", new help(app));
+        GeneralCommandsMap.put("quit", new quit(app));
+        GeneralCommandsMap.put("clear", new clear(app));
+        GeneralCommandsMap.put("login", new login(app));
+
+        StudentCommandsMap.put("ls", new ls(app));
+        StudentCommandsMap.put("search", new search(app));
+        StudentCommandsMap.put("update", new update(app));
+
+        AdminCommandsMap.put("ls", new ls(app));
+        AdminCommandsMap.put("add", new add(app));
+        AdminCommandsMap.put("search", new search(app));
+        AdminCommandsMap.put("update", new update(app));
+        AdminCommandsMap.put("del", new del(app));
+    }
+
+    private Optional<Cmd> getCommand(String commandName) {
+
+        switch (user) {
+            case NULL -> {
+                return Optional.ofNullable(GeneralCommandsMap.get(commandName));
+            }
+            case STUDENT -> {
+                return GeneralCommandsMap.containsKey(commandName) ?
+                        Optional.ofNullable(GeneralCommandsMap.get(commandName)) :
+                        Optional.ofNullable(StudentCommandsMap.get(commandName));
+            }
+            case ADMIN -> {
+                return GeneralCommandsMap.containsKey(commandName) ?
+                        Optional.ofNullable(GeneralCommandsMap.get(commandName)) :
+                        Optional.ofNullable(AdminCommandsMap.get(commandName));
+            }
+            case DEVELOPER -> {
+                // 待开发
+                return Optional.empty();
+            }
+            default -> {
+                return Optional.empty();
+            }
+        }
     }
 
     public Result<Cmd> parseAndGetCommand(String line) {
@@ -47,7 +86,7 @@ public class Command {
             }
         }
 
-        Optional<Cmd> cmdOptional = Optional.ofNullable(commandsMap.get(commandName));
+        Optional<Cmd> cmdOptional = getCommand(commandName);
         if (cmdOptional.isEmpty()) {
             return Result.warn(COMMAND_ERROR);
         }

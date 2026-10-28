@@ -20,6 +20,8 @@ public class StatusBar {
     }
 
     public void printInfo(String content) {
+        if (content.isEmpty()) return;
+
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
@@ -34,6 +36,8 @@ public class StatusBar {
     }
 
     public void printSuccess(String content) {
+        if (content.isEmpty()) return;
+
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
@@ -48,6 +52,8 @@ public class StatusBar {
     }
 
     public void printWarning(String content) {
+        if (content.isEmpty()) return;
+
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
@@ -62,6 +68,8 @@ public class StatusBar {
     }
 
     public void printError(String content) {
+        if (content.isEmpty()) return;
+
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
@@ -76,6 +84,8 @@ public class StatusBar {
     }
 
     public void printOption(String content) {
+        if (content.isEmpty()) return;
+
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(

@@ -25,6 +25,12 @@ public interface BookMapper {
 
     List<Book> fuzzySearch(@Param("keyword") String keyword);
 
+    // 个体可借查询
+
+    List<Book> findAllAvailable();
+
+    List<Book> fuzzySearchAvailable(@Param("keyword") String keyword);
+
     // 有没有借出的都可以查
     List<Book> findAllWithCount();
 

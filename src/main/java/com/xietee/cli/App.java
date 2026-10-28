@@ -4,14 +4,13 @@ import com.xietee.cli.cmd.Cmd;
 import com.xietee.common.Result;
 import com.xietee.exception.BusinessException;
 import com.xietee.service.AdminService;
+import com.xietee.service.StudentService;
 import com.xietee.ui.AnsiColors;
 import com.xietee.ui.AppUI;
 import lombok.Getter;
 import lombok.Setter;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -19,6 +18,9 @@ public class App {
 
     @Getter @Setter private boolean running;
 
+    @Getter private UserType user;
+
+    @Getter private final StudentService studentService;
     @Getter private final AdminService adminService;
 
     @Getter private final AppUI ui;
@@ -26,74 +28,95 @@ public class App {
     private final Command command;
     private Cmd cmd;
 
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
-
-    public App(AdminService adminService) throws IOException {
+    public App(StudentService studentService, AdminService adminService) throws IOException {
         this.running = true;
+        this.studentService = studentService;
         this.adminService = adminService;
         this.ui = new AppUI();
+        this.user = UserType.NULL;
         this.command = new Command(this);
 
         this.ui.initTerminal();
     }
 
+    public void setUser(UserType user) {
+        this.user = user;
+        this.command.setUser(user);
+    }
+
     public void run() {
 
-        String prompt = "Command > ";
-        boolean mySweetTip = true;
-
-        ui.showBanner();
-        ui.showWelcome();
-
         while (running) {
-
-            try {
-                if (mySweetTip) {
-                    ui.consoleWrite(
-                                    "<xieteeQAQ> 按 "
-                                            + AnsiColors.BLACK__WHITE
-                                            + " Tab "
-                                            + AnsiColors.RESET
-                                            + " 可以补全命令哦 (QWQ)/~");
-                    mySweetTip = false;
+            while (running && user == UserType.NULL) {
+                try {
+                    Cmd login = command.parseAndGetCommand("login").data();
+                    var result = login.execute();
+                    if (result.code() == 200) {
+                        ui.clearConsole();
+                        ui.barPrintSuccess(result.message());
+                    } else {
+                        ui.clearConsole();
+                        ui.barPrintWarning(result.message());
+                    }
+                } catch (BusinessException e) {
+                    ui.barPrintWarning(e.getMessage());
+                } catch (UserInterruptException e) {
+                    ui.barPrintError(e.getMessage());
+                } catch (EndOfFileException e) {
+                    ui.barPrintError(e.getMessage());
+                    running = false;
+                } finally {
+                    if (cmd != null)
+                        cmd.reset();
                 }
+            }
+            if (!running) break;
 
-                String line;
+            String prompt = "Command > ";
 
-                line = ui.readInput(prompt).trim();
-                if (line.isEmpty()) {
-                    continue;
-                }
+            ui.showBanner();
+            ui.showWelcome();
+            ui.consoleWrite(
+                    "<xieteeQAQ> 按 "
+                            + AnsiColors.BLACK__WHITE
+                            + " Tab "
+                            + AnsiColors.RESET
+                            + " 可以补全命令哦 (QWQ)/~");
 
-                Result<Cmd> parseResult = command.parseAndGetCommand(line);
-                if (parseResult.code() == 200) {
+            while (running) {
+                try {
+                    String line;
 
+                    line = ui.readInput(prompt).trim();
+                    if (line.isEmpty()) {
+                        continue;
+                    }
+
+                    Result<Cmd> parseResult = command.parseAndGetCommand(line);
+                    if (parseResult.code() == 200) {
                         cmd = parseResult.data();
-
                         var executeResult = cmd.execute();
                         cmd.reset();
-                        if (!executeResult.message().isBlank()) {
-                            if (executeResult.code() == 200) {
-                                ui.barPrintSuccess(executeResult.message());
-                            } else {
-                                ui.barPrintWarning(executeResult.message());
-                            }
+                        if (executeResult.code() == 200) {
+                            ui.barPrintSuccess(executeResult.message());
+                        } else {
+                            ui.barPrintWarning(executeResult.message());
                         }
+                    } else {
+                        ui.barPrintWarning(parseResult.message());
+                    }
 
-                } else {
-                    ui.barPrintWarning(parseResult.message());
+                } catch (BusinessException e) {
+                    ui.barPrintWarning(e.getMessage());
+                } catch (UserInterruptException e) {
+                    ui.barPrintError(e.getMessage());
+                } catch (EndOfFileException e) {
+                    ui.barPrintError(e.getMessage());
+                    running = false;
+                } finally {
+                    if (cmd != null)
+                        cmd.reset();
                 }
-
-            } catch (BusinessException e) {
-                ui.barPrintWarning(e.getMessage());
-            } catch (UserInterruptException e) {
-                ui.barPrintError(e.getMessage());
-            } catch (EndOfFileException e) {
-                ui.barPrintError(e.getMessage());
-                running = false;
-            } finally {
-                if (cmd != null)
-                    cmd.reset();
             }
         }
         ui.barPrintInfo("bye.");
