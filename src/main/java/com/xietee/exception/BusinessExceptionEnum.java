@@ -28,7 +28,11 @@ public enum BusinessExceptionEnum implements StatusCode {
     // 系统错误码
     FEATURE_NOT_DEVELOPED(5000, "功能待开发"),
     UPDATE_FAIL(5003, "更新失败"),
-    NO_SUCH_FILE(5004, "文件不存在");
+    NO_SUCH_FILE(5004, "文件不存在"),
+
+    // 登录错误码
+    INCORRECT_PASSWORD(6000, "密码错误"),
+    UNEXISTED_STUDENT_ID(6001, "该学号不存在");
 
     private final int code;
     private final String message;

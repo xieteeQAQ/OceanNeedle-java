@@ -23,6 +23,7 @@ public class Command {
         commandsMap.put("search", new search(app));
         commandsMap.put("update", new update(app));
         commandsMap.put("del", new del(app));
+        commandsMap.put("login", new login(app));
     }
 
     public Result<Cmd> parseAndGetCommand(String line) {

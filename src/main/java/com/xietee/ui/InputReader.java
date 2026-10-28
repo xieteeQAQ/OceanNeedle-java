@@ -16,9 +16,19 @@ public class InputReader {
         try {
             return lineReader.readLine(prompt);
         } catch (UserInterruptException e) {
-            throw new RuntimeException("Operation cancelled by user");
+            throw new UserInterruptException("Operation cancelled by user");
         } catch (EndOfFileException e) {
-            throw new RuntimeException("End of input");
+            throw new EndOfFileException("End of input");
+        }
+    }
+
+    public String readPassword(String prompt) {
+        try {
+            return lineReader.readLine(prompt, '*');
+        } catch (UserInterruptException e) {
+            throw new UserInterruptException("Operation cancelled by user");
+        } catch (EndOfFileException e) {
+            throw new EndOfFileException("End of input");
         }
     }
 }

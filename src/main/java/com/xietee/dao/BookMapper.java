@@ -30,9 +30,9 @@ public interface BookMapper {
 
     List<Book> findWithCountByISBN(String ISBN);
 
-    List<Book> findWithCountByTitle(@Param("title") String title);
+    List<Book> findWithCountByTitle(String title);
 
-    List<Book> findWithCountByAuthor(@Param("author") String author);
+    List<Book> findWithCountByAuthor(String author);
 
     List<Book> findWithCountByAvailable(boolean available);
 
@@ -43,9 +43,9 @@ public interface BookMapper {
 
     List<Book> findAvailableWithCountByISBN(String ISBN);
 
-    List<Book> findAvailableWithCountByTitle(@Param("title") String title);
+    List<Book> findAvailableWithCountByTitle(String title);
 
-    List<Book> findAvailableWithCountByAuthor(@Param("author") String author);
+    List<Book> findAvailableWithCountByAuthor(String author);
 
     // 插入
     int insertBook(Book book);

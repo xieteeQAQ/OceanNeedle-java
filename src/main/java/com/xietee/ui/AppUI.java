@@ -91,6 +91,10 @@ public class AppUI implements AutoCloseable {
         return inputReader.readInput(prompt);
     }
 
+    public String readPassword(String prompt) {
+        return inputReader.readPassword(prompt);
+    }
+
     public void consoleWriteTitle(String title) { consolePrinter.writeTitle(title); }
 
     public void consoleWrite(String content) { consolePrinter.write(content); }
