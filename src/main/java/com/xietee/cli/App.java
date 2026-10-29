@@ -4,6 +4,7 @@ import com.xietee.cli.cmd.Cmd;
 import com.xietee.common.Result;
 import com.xietee.exception.BusinessException;
 import com.xietee.service.AdminService;
+import com.xietee.service.LoginService;
 import com.xietee.service.StudentService;
 import com.xietee.ui.AnsiColors;
 import com.xietee.ui.AppUI;
@@ -18,30 +19,36 @@ public class App {
 
     @Getter @Setter private boolean running;
 
-    @Getter private UserType user;
+    @Getter private static UserType user;
 
     @Getter private final StudentService studentService;
     @Getter private final AdminService adminService;
+    @Getter private final LoginService loginService;
 
     @Getter private final AppUI ui;
 
     private final Command command;
     private Cmd cmd;
 
-    public App(StudentService studentService, AdminService adminService) throws IOException {
+    public App(StudentService studentService, AdminService adminService, LoginService loginService) throws IOException {
         this.running = true;
         this.studentService = studentService;
         this.adminService = adminService;
+        this.loginService = loginService;
         this.ui = new AppUI();
-        this.user = UserType.NULL;
+        user = UserType.NULL;
         this.command = new Command(this);
 
         this.ui.initTerminal();
     }
 
-    public void setUser(UserType user) {
-        this.user = user;
+    public void setUser(UserType _user) {
+        user = _user;
         this.command.setUser(user);
+    }
+
+    public static void DebugSetUser(UserType _user) {
+        user = _user;
     }
 
     public void run() {

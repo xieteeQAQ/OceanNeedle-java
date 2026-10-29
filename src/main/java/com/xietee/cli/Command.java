@@ -17,25 +17,30 @@ public class Command {
             new HashMap<>();
     private static final Map<String, Cmd> AdminCommandsMap =
             new HashMap<>();
-    private @Getter @Setter UserType user;
+    private @Getter UserType user;
+
+    public void setUser(UserType user) {
+        this.user = user;
+        GeneralCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
+        StudentCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
+        AdminCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
+    }
 
     public Command(App app) {
 
-        this.user = app == null ? UserType.NULL : app.getUser();
+        this.user = app == null ? UserType.NULL : App.getUser();
 
         GeneralCommandsMap.put("help", new help(app));
         GeneralCommandsMap.put("quit", new quit(app));
         GeneralCommandsMap.put("clear", new clear(app));
         GeneralCommandsMap.put("login", new login(app));
+        GeneralCommandsMap.put("ls", new ls(app));
+        GeneralCommandsMap.put("search", new search(app));
 
-        StudentCommandsMap.put("ls", new ls(app));
-        StudentCommandsMap.put("search", new search(app));
-        StudentCommandsMap.put("update", new update(app));
+        StudentCommandsMap.put("borrow", new borrow(app));
 
-        AdminCommandsMap.put("ls", new ls(app));
-        AdminCommandsMap.put("add", new add(app));
-        AdminCommandsMap.put("search", new search(app));
         AdminCommandsMap.put("update", new update(app));
+        AdminCommandsMap.put("add", new add(app));
         AdminCommandsMap.put("del", new del(app));
     }
 

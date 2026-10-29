@@ -1,6 +1,7 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
+import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.entity.Book;
 import com.xietee.entity.Student;
@@ -23,12 +24,50 @@ public class search implements Cmd {
 
     private boolean allBook = false;
 
-    private final Set<String> objects = new HashSet<>(Set.of(
-            "student", "admin", "developer", "record", "book"
+    private final Set<String> objectsForStudent = new HashSet<>(Set.of(
+            "record", "book"
     ));
+    private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
+            "student", "record", "book"
+    ));
+    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
+            "student", "record", "book", "admin", "developer"
+    ));
+
+    private static final String optionForStudent = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录";
+    private static final String optionForAdmin = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生";
+    private static final String optionForDeveloper = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生 \n[4]管理员 \n[5]开发者";
 
     public search(App app) {
         this.app = app;
+    }
+
+    private String getOption() {
+        switch (App.getUser()) {
+            case DEVELOPER -> {
+                return optionForDeveloper;
+            }
+            case ADMIN -> {
+                return optionForAdmin;
+            }
+            default -> {
+                return optionForStudent;
+            }
+        }
+    }
+
+    private boolean objectsContains(String object) {
+        switch (App.getUser()) {
+            case DEVELOPER -> {
+                return objectsForDeveloper.contains(object);
+            }
+            case ADMIN -> {
+                return objectsForAdmin.contains(object);
+            }
+            default -> {
+                return objectsForStudent.contains(object);
+            }
+        }
     }
 
     @Override
@@ -46,7 +85,7 @@ public class search implements Cmd {
         final AppUI ui = app.getUi();
 
         if (object.isEmpty()) {
-            ui.barPrintOption("要查询的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
+            ui.barPrintOption(getOption());
             object = ui.readInput("Option > ").trim();
             if (object.equals("0")) {
                 return Result.success("", null);
@@ -55,7 +94,7 @@ public class search implements Cmd {
             }
         }
 
-        if (object.equals("student") || object.equals("1")) {
+        if (object.equals("student") || object.equals("3")) {
 
             if (keyword.isEmpty()) {
 
@@ -86,12 +125,22 @@ public class search implements Cmd {
             List<Book> books;
             // 搜索要操作的对象 让用户选择 返回序号和搜索结果
             if (allBook) {
-                books = new ArrayList<>(app.getAdminService().fuzzySearchBook(keyword));
+                if (App.getUser() == UserType.STUDENT) {
+                    books = app.getStudentService().fuzzySearchAvailableBook(keyword);
+                } else {
+                    books = app.getAdminService().findAllBook();
+                }
             } else {
-                books = new ArrayList<>(app.getAdminService().fuzzySearchBookWithCount(keyword));
+                if (App.getUser() == UserType.STUDENT) {
+                    books = app.getStudentService().fuzzySearchAvailableBookWithCount(keyword);
+                } else {
+                    books = app.getAdminService().findAllBookWithCount();
+                }
             }
             // 查不到就返回 交给其他函数处理
-            if (books.isEmpty()) return Result.warn(BOOK_NOT_FOUND);
+            if (books.isEmpty()) return App.getUser() == UserType.STUDENT
+                    ? Result.warn(AVAILABLE_BOOK_NOT_FOUND)
+                    : Result.warn(BOOK_NOT_FOUND);
 
             // 数据可视化
             List<String> lines = new ArrayList<>(books.stream().map(Book::toString).toList());
@@ -116,7 +165,7 @@ public class search implements Cmd {
 
             String arg = args.get(i);
             if (i == 0) {
-                if (objects.contains(arg)) {
+                if (objectsContains(arg)) {
                     this.object = arg;
                 } else {
                     return Result.warn(COMMAND_PARAM_ERROR);

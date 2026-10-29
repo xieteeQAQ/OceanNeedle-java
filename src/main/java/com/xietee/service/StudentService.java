@@ -2,15 +2,11 @@ package com.xietee.service;
 
 import com.xietee.dao.BookMapper;
 import com.xietee.dao.StudentMapper;
-import com.xietee.dto.BookSaveDTO;
-import com.xietee.dto.BookUpdateDTO;
-import com.xietee.dto.StudentSaveDTO;
 import com.xietee.dto.StudentUpdateDTO;
 import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,10 +108,19 @@ public class StudentService {
     }
 
     // 个体可借查询
-
     public List<Book> findAllAvailableBook() {
 
         List<Book> books = bookMapper.findAllAvailable();
+
+        if (books.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+        return books;
+    }
+
+    // 同书籍可借查询
+    public List<Book> findAllAvailableBookWithCount() {
+        List<Book> books = bookMapper.findAllAvailableWithCount();
 
         if (books.isEmpty()) {
             throw new BusinessException(NO_DATA);
@@ -128,6 +133,13 @@ public class StudentService {
 
         if (keyword.isEmpty()) return findAllAvailableBook();
 
-        return bookMapper.fuzzySearch(keyword);
+        return bookMapper.fuzzySearchAvailable(keyword);
+    }
+
+    public List<Book> fuzzySearchAvailableBookWithCount (String keyword) {
+
+        if (keyword.isEmpty()) return findAllAvailableBookWithCount();
+
+        return bookMapper.fuzzySearchAvailableWithCount(keyword);
     }
 }

@@ -1,6 +1,7 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
+import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.dto.BookUpdateDTO;
 import com.xietee.dto.StudentUpdateDTO;
@@ -9,27 +10,53 @@ import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 import com.xietee.ui.AppUI;
 import com.xietee.util.ValidationUtils;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class update implements Cmd {
 
-    private final App app;
+    @Setter
+    private App app;
 
     private String object = "";
 
     private String key = "";
 
-    private final Set<String> objects = new HashSet<>(Set.of(
-            "student", "admin", "developer", "record", "book"
+    private final Set<String> objectsForStudent = new HashSet<>(Set.of(
+            "record", "book"
     ));
+    private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
+            "student", "record", "book"
+    ));
+    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
+            "student", "record", "book", "admin", "developer"
+    ));
+
+    private static final String optionForAdmin = "要更新的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
+    private static final String optionForDeveloper = "要更新的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]记录 \n[4]管理员 \n[5]开发者";
 
     public update(App app) {
         this.app = app;
+    }
+
+    private String getOption() {
+        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+            return optionForDeveloper;
+        }
+        return optionForAdmin;
+    }
+
+    private boolean objectsContains(String object) {
+        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+            return objectsForDeveloper.contains(object);
+        }
+        return objectsForAdmin.contains(object);
     }
 
     @Override
@@ -46,7 +73,7 @@ public class update implements Cmd {
         }
         String argsObject = args.getFirst();
 
-        if (objects.contains(argsObject)) {
+        if (objectsContains(argsObject)) {
             this.object = argsObject;
         } else {
             return Result.warn(COMMAND_PARAM_ERROR);
@@ -65,7 +92,7 @@ public class update implements Cmd {
         final AppUI ui = app.getUi();
 
         if (this.object.isEmpty()) {
-            ui.barPrintOption("要更新的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
+            ui.barPrintOption(getOption());
             object = ui.readInput("Option > ").trim();
             if (object.equals("0")) {
                 return Result.success("", null);
@@ -74,7 +101,7 @@ public class update implements Cmd {
             }
         }
 
-        if (object.equals("student") || object.equals("1")) {
+        if (object.equals("student") || object.equals("2")) {
 
             if (key.isEmpty()) {
 
@@ -120,7 +147,7 @@ public class update implements Cmd {
             app.getAdminService().updateStudentById(updateStudent.getId(), studentUpdateDTO);
 
             return Result.success("更新成功", null);
-        } else if (object.equals("book") || object.equals("2")) {
+        } else if (object.equals("book") || object.equals("1")) {
 
             if (key.isEmpty()) {
 

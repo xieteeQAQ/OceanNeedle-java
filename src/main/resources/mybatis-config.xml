@@ -32,6 +32,7 @@
              只写 <mapper class="..."/> 会报 "Invalid bound statement (not found)"。 -->
         <mapper resource="com/xietee/mapper/StudentMapper.xml"/>
         <mapper resource="com/xietee/mapper/BookMapper.xml"/>
+        <mapper resource="com/xietee/mapper/AdminMapper.xml"/>
     </mappers>
 
 </configuration>

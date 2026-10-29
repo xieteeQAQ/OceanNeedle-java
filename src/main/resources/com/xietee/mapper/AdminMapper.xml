@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xietee.dao.AdminMapper">
+<!--    查询-->
+    <select id="findAll" resultType="com.xietee.entity.Admin">
+        select id, adminID, password, phoneNumber from admin
+    </select>
+    <select id="findById" resultType="com.xietee.entity.Admin">
+        select id, adminID, password, phoneNumber from admin where id = #{id}
+    </select>
+    <select id="findByAdminID" resultType="com.xietee.entity.Admin">
+        select id, adminID, password, phoneNumber from admin where adminID = #{adminID}
+    </select>
+    <select id="findByPhoneNumber" resultType="com.xietee.entity.Admin">
+        select id, adminID, password, phoneNumber from admin where phoneNumber = #{phoneNumber}
+    </select>
+
+<!--    插入-->
+    <insert id="insertAdmin">
+        insert into admin(adminID, password, phoneNumber) VALUES (#{adminID}, #{password}, #{phoneNumber})
+    </insert>
+
+<!--    更新-->
+    <update id="updateById">
+        update admin set password = #{password}, phoneNumber = #{phoneNumber} where id = #{id};
+    </update>
+
+<!--    删除-->
+    <delete id="deleteById">
+        delete from admin where id = #{id};
+    </delete>
+</mapper>

@@ -47,10 +47,10 @@
                author,
                available
         from book
-        where ISBN like #{pattern}
+        where (ISBN like #{pattern}
         OR title like #{pattern}
-        OR author like #{pattern}
-        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
+        OR author like #{pattern})
+        AND available = 1
     </select>
 
     <!--    有没有借出的都可以查-->
@@ -176,6 +176,22 @@
             MAX(available)                                 AS available
         FROM book
         WHERE author = #{pattern}
+        GROUP BY ISBN
+        HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
+    </select>
+
+    <select id="fuzzySearchAvailableWithCount" resultType="com.xietee.entity.Book">
+        <bind name="pattern" value="'%' + keyword + '%'"/>
+        SELECT ISBN,
+            ANY_VALUE(title)                               AS title,
+            ANY_VALUE(author)                              AS author,
+            COUNT(*)                                       AS totalCount,
+            SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) AS availableCount,
+            MAX(available)                                 AS available
+        FROM book
+        WHERE ISBN like #{pattern}
+        OR title like #{pattern}
+        OR author like #{pattern}
         GROUP BY ISBN
         HAVING SUM(CASE WHEN available = 1 THEN 1 ELSE 0 END) > 0
     </select>

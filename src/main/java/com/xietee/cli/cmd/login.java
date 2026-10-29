@@ -3,13 +3,14 @@ package com.xietee.cli.cmd;
 import com.xietee.cli.App;
 import com.xietee.cli.UserType;
 import com.xietee.common.Result;
+import com.xietee.entity.Admin;
 import com.xietee.entity.Student;
-import com.xietee.exception.BusinessException;
 import com.xietee.ui.AppUI;
 import com.xietee.util.TimeUtils;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
@@ -37,7 +38,7 @@ public class login implements Cmd {
             ui.barPrintOption("你是 \n[0]取消 \n[1]学生 \n[2]管理员");
             user = ui.readInput("Option > ").trim();
             if (user.equals("0")) {
-                if (app.getUser() == UserType.NULL) {
+                if (App.getUser() == UserType.NULL) {
                     app.setRunning(false);
                 }
                 return Result.success("", null);
@@ -55,13 +56,10 @@ public class login implements Cmd {
                 return Result.warn(PARAM_ERROR.getCode(), "学号应为 12 位数");
             }
 
-            Student student;
 
-            try {
-                student = app.getAdminService().findStudentByStudentID(studentID);
-            } catch (BusinessException e) {
-                return Result.warn(UNEXISTED_STUDENT_ID);
-            }
+            Optional<Student> loginResult = app.getLoginService().LoginFindStudentByStudentID(studentID);
+            if (loginResult.isEmpty()) return Result.warn(UNEXISTED_STUDENT_ID);
+            Student student = loginResult.get();
 
             String password = ui.readPassword("密码 > ").trim();
             if (password.isEmpty()) {
@@ -78,7 +76,32 @@ public class login implements Cmd {
                 return Result.warn(INCORRECT_PASSWORD);
             }
         } else if (user.equals("admin") || user.equals("2")) {
-            return Result.warn(FEATURE_NOT_DEVELOPED);
+
+            String adminID = ui.readInput("管理员ID > ").trim();
+            if (adminID.isEmpty()) {
+                return Result.warn(PARAM_ERROR.getCode(), "管理员ID不能为空");
+            } else if (adminID.length() != 12) {
+                return Result.warn(PARAM_ERROR.getCode(), "管理员ID应为 12 位数");
+            }
+
+            Optional<Admin> loginResult = app.getLoginService().LoginFindAdminByAdminID(adminID);
+            if (loginResult.isEmpty()) return Result.warn(UNEXISTED_ADMIN_ID);
+            Admin admin = loginResult.get();
+
+            String password = ui.readPassword("密码 > ").trim();
+            if (password.isEmpty()) {
+                return Result.warn(PARAM_ERROR.getCode(), "密码不能为空");
+            } else if (password.length() < 8 || password.length() > 32) {
+                return Result.warn(PARAM_ERROR.getCode(), "密码长度至少为 8 ，最长不超过 32");
+            }
+
+            if (admin.getPassword().equals(password)) {
+                app.setUser(UserType.ADMIN);
+                String message = String.format("登录成功 %s好, %s", TimeUtils.nowTime(), admin.getAdminID());
+                return Result.success(message, null);
+            } else {
+                return Result.warn(INCORRECT_PASSWORD);
+            }
         } else {
             return Result.warn(OUT_OF_RANGE);
         }

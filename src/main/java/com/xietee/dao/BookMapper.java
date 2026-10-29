@@ -53,6 +53,8 @@ public interface BookMapper {
 
     List<Book> findAvailableWithCountByAuthor(String author);
 
+    List<Book> fuzzySearchAvailableWithCount(String keyword);
+
     // 插入
     int insertBook(Book book);
 

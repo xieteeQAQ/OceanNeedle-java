@@ -196,6 +196,15 @@ public class AdminService {
         return books;
     }
 
+    public List<Book> findAllAvailableBookWithCount() {
+        List<Book> books = bookMapper.findAllAvailableWithCount();
+
+        if (books.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+        return books;
+    }
+
     // 模糊搜索
     public List<Book> fuzzySearchBook (String keyword) {
 

@@ -1,9 +1,11 @@
 package com.xietee;
 
 import com.xietee.cli.App;
+import com.xietee.dao.AdminMapper;
 import com.xietee.dao.BookMapper;
 import com.xietee.dao.StudentMapper;
 import com.xietee.service.AdminService;
+import com.xietee.service.LoginService;
 import com.xietee.service.StudentService;
 import com.xietee.ui.AnsiColors;
 import org.apache.ibatis.io.Resources;
@@ -36,10 +38,12 @@ public class Main {
         try (SqlSession session = SQL_SESSION_FACTORY.openSession(true)) { // true = 自动提交
             StudentMapper studentMapper = session.getMapper(StudentMapper.class);
             BookMapper bookMapper = session.getMapper(BookMapper.class);
+            AdminMapper adminMapper = session.getMapper(AdminMapper.class);
             StudentService studentService = new StudentService(studentMapper, bookMapper);
             AdminService adminService = new AdminService(studentMapper, bookMapper);
+            LoginService loginService = new LoginService(studentMapper, adminMapper);
 
-            runApp(studentService, adminService);
+            runApp(studentService, adminService, loginService);
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -47,8 +51,8 @@ public class Main {
         }
     }
 
-    private static void runApp(StudentService studentService, AdminService adminService) throws Exception {
-        App app = new App(studentService, adminService);
+    private static void runApp(StudentService studentService, AdminService adminService, LoginService loginService) throws Exception {
+        App app = new App(studentService, adminService, loginService);
 
         app.run();
     }

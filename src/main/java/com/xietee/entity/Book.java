@@ -43,14 +43,14 @@ public class Book {
                     + availableCount + '/' + totalCount;
         } else {
             string = " 序号: "
-                    + id
+                    + id + ' '
                     + "ISBN: "
                     + ISBN
                     + " 书名: "
                     + title
                     + " 作者: "
                     + author
-                    + " 是否借出: "
+                    + " 是否可借: "
                     + map(available);
         }
         return string;
