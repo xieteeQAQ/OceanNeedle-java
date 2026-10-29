@@ -28,9 +28,6 @@ public class update implements Cmd {
 
     private String key = "";
 
-    private final Set<String> objectsForStudent = new HashSet<>(Set.of(
-            "record", "book"
-    ));
     private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
             "student", "record", "book"
     ));

@@ -3,7 +3,6 @@ package com.xietee.cli;
 import com.xietee.cli.cmd.*;
 import com.xietee.common.Result;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.*;
 
