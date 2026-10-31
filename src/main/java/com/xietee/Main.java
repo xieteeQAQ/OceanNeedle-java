@@ -3,6 +3,7 @@ package com.xietee;
 import com.xietee.cli.App;
 import com.xietee.dao.AdminMapper;
 import com.xietee.dao.BookMapper;
+import com.xietee.dao.RecordMapper;
 import com.xietee.dao.StudentMapper;
 import com.xietee.service.AdminService;
 import com.xietee.service.LoginService;
@@ -39,8 +40,9 @@ public class Main {
             StudentMapper studentMapper = session.getMapper(StudentMapper.class);
             BookMapper bookMapper = session.getMapper(BookMapper.class);
             AdminMapper adminMapper = session.getMapper(AdminMapper.class);
-            StudentService studentService = new StudentService(studentMapper, bookMapper);
-            AdminService adminService = new AdminService(studentMapper, bookMapper);
+            RecordMapper recordMapper = session.getMapper(RecordMapper.class);
+            StudentService studentService = new StudentService(studentMapper, bookMapper, recordMapper);
+            AdminService adminService = new AdminService(studentMapper, bookMapper, recordMapper);
             LoginService loginService = new LoginService(studentMapper, adminMapper);
 
             runApp(studentService, adminService, loginService);

@@ -4,6 +4,8 @@ import java.time.LocalTime;
 
 public class TimeUtils {
 
+    private TimeUtils() {};
+
     public static String nowTime() {
 
         LocalTime now = LocalTime.now();

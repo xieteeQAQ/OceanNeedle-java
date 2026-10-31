@@ -3,6 +3,7 @@ package com.xietee.cli;
 import com.xietee.cli.cmd.Cmd;
 import com.xietee.common.Result;
 import com.xietee.exception.BusinessException;
+import com.xietee.exception.LoginException;
 import com.xietee.service.AdminService;
 import com.xietee.service.LoginService;
 import com.xietee.service.StudentService;
@@ -14,6 +15,9 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.UserInterruptException;
 
 import java.io.IOException;
+
+import static com.xietee.exception.BusinessExceptionEnum.LOGIN_SESSION_EXPIRED;
+import static com.xietee.service.LoginService.checkLoginSessionStatus;
 
 public class App {
 
@@ -37,14 +41,13 @@ public class App {
         this.loginService = loginService;
         this.ui = new AppUI();
         user = UserType.NULL;
-        this.command = new Command(this);
+        this.command = new Command();
 
         this.ui.initTerminal();
     }
 
     public void setUser(UserType _user) {
         user = _user;
-        this.command.setUser(user);
     }
 
     public static void DebugSetUser(UserType _user) {
@@ -57,7 +60,7 @@ public class App {
             while (running && user == UserType.NULL) {
                 try {
                     Cmd login = command.parseAndGetCommand("login").data();
-                    var result = login.execute();
+                    var result = login.execute(this);
                     if (result.code() == 200) {
                         ui.clearConsole();
                         ui.barPrintSuccess(result.message());
@@ -95,6 +98,8 @@ public class App {
                     String line;
 
                     line = ui.readInput(prompt).trim();
+                    // 每次读取命令前都检查登录是否失效
+                    checkLoginSessionStatus();
                     if (line.isEmpty()) {
                         continue;
                     }
@@ -102,7 +107,7 @@ public class App {
                     Result<Cmd> parseResult = command.parseAndGetCommand(line);
                     if (parseResult.code() == 200) {
                         cmd = parseResult.data();
-                        var executeResult = cmd.execute();
+                        var executeResult = cmd.execute(this);
                         cmd.reset();
                         if (executeResult.code() == 200) {
                             ui.barPrintSuccess(executeResult.message());
@@ -114,6 +119,13 @@ public class App {
                     }
 
                 } catch (BusinessException e) {
+                    ui.barPrintWarning(e.getMessage());
+                } catch (LoginException e) {
+                    if (e.getCode() == LOGIN_SESSION_EXPIRED.getCode()) {
+                        setUser(UserType.NULL);
+                        ui.barPrintError(e.getMessage());
+                        break;
+                    }
                     ui.barPrintWarning(e.getMessage());
                 } catch (UserInterruptException e) {
                     ui.barPrintError(e.getMessage());

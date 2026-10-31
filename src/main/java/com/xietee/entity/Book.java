@@ -42,7 +42,7 @@ public class Book {
                     + " 剩余: "
                     + availableCount + '/' + totalCount;
         } else {
-            string = " 序号: "
+            string = " 编号: "
                     + id + ' '
                     + "ISBN: "
                     + ISBN

@@ -1,10 +1,15 @@
 package com.xietee.cli.cmd;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.xietee.cli.App;
 import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.entity.Admin;
 import com.xietee.entity.Student;
+import com.xietee.exception.LoginException;
+import com.xietee.service.AdminService;
+import com.xietee.service.LoginService;
+import com.xietee.service.StudentService;
 import com.xietee.ui.AppUI;
 import com.xietee.util.TimeUtils;
 
@@ -23,14 +28,29 @@ public class login implements Cmd {
 
     private String user = "";
 
-    private final App app;
-
-    public login(App app) {
-        this.app = app;
+    public login() {
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
+
+        if (App.getUser() == UserType.NULL) {
+            // 尝试获取登录信息
+            JSONObject jsonObject;
+            try {
+                jsonObject = LoginService.getUserFromJSON();
+                if (!jsonObject.getString("userType").equals(UserType.NULL.getString())) {
+                    UserType userType = UserType.map(jsonObject.getString("userType"));
+                    String id = jsonObject.getString("id");
+                    String name = jsonObject.getString("name");
+                    app.setUser(userType);
+                    String message = String.format("登录成功 %s好, %s", TimeUtils.nowTime(), name.isEmpty() ? id : name);
+                    return Result.success(message, null);
+                }
+            } catch (LoginException e) {
+                // 放行
+            }
+        }
 
         final AppUI ui = app.getUi();
 
@@ -64,11 +84,13 @@ public class login implements Cmd {
             String password = ui.readPassword("密码 > ").trim();
             if (password.isEmpty()) {
                 return Result.warn(PARAM_ERROR.getCode(), "密码不能为空");
-            } else if (password.length() < 8 || password.length() > 32) {
-                return Result.warn(PARAM_ERROR.getCode(), "密码长度至少为 8 ，最长不超过 32");
+            } else if (password.length() < 8 || password.length() > 16) {
+                return Result.warn(PARAM_ERROR.getCode(), "密码长度至少为 8 ，最长不超过 16");
             }
 
             if (student.getPassword().equals(password)) {
+
+                StudentService.writeToJSON(student);
                 app.setUser(UserType.STUDENT);
                 String message = String.format("登录成功 %s好, %s", TimeUtils.nowTime(), student.getName());
                 return Result.success(message, null);
@@ -91,11 +113,13 @@ public class login implements Cmd {
             String password = ui.readPassword("密码 > ").trim();
             if (password.isEmpty()) {
                 return Result.warn(PARAM_ERROR.getCode(), "密码不能为空");
-            } else if (password.length() < 8 || password.length() > 32) {
-                return Result.warn(PARAM_ERROR.getCode(), "密码长度至少为 8 ，最长不超过 32");
+            } else if (password.length() < 8 || password.length() > 16) {
+                return Result.warn(PARAM_ERROR.getCode(), "密码长度至少为 8 ，最长不超过 16");
             }
 
             if (admin.getPassword().equals(password)) {
+
+                AdminService.writeToJSON(admin);
                 app.setUser(UserType.ADMIN);
                 String message = String.format("登录成功 %s好, %s", TimeUtils.nowTime(), admin.getAdminID());
                 return Result.success(message, null);
@@ -119,7 +143,7 @@ public class login implements Cmd {
             return Result.success(NONE);
         }
 
-        String  argsUser = args.getFirst();
+        String argsUser = args.getFirst();
 
         if (users.contains(argsUser)) {
             this.user = argsUser;

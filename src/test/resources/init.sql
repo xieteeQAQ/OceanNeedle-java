@@ -49,7 +49,8 @@ create table if not exists book (
 create table if not exists record (
 
     id bigint not null auto_increment,
-    studentID char(11) not null,
+    bookID bigint not null,
+    studentID char(12) not null,
     ISBN char(13) not null,
     borrowTime DATETIME default now(),
     returnTime DATETIME default null,

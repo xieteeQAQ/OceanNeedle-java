@@ -2,7 +2,6 @@ package com.xietee.cli;
 
 import com.xietee.cli.cmd.*;
 import com.xietee.common.Result;
-import lombok.Getter;
 
 import java.util.*;
 
@@ -16,36 +15,28 @@ public class Command {
             new HashMap<>();
     private static final Map<String, Cmd> AdminCommandsMap =
             new HashMap<>();
-    private @Getter UserType user;
 
-    public void setUser(UserType user) {
-        this.user = user;
-        GeneralCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
-        StudentCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
-        AdminCommandsMap.forEach((key, cmd) -> cmd.updateUser(user));
-    }
+    public Command() {
 
-    public Command(App app) {
+        GeneralCommandsMap.put("help", new help());
+        GeneralCommandsMap.put("quit", new quit());
+        GeneralCommandsMap.put("clear", new clear());
+        GeneralCommandsMap.put("login", new login());
+        GeneralCommandsMap.put("ls", new ls());
+        GeneralCommandsMap.put("search", new search());
+        GeneralCommandsMap.put("history", new history());
 
-        this.user = app == null ? UserType.NULL : App.getUser();
+        StudentCommandsMap.put("borrow", new borrow());
+        StudentCommandsMap.put("ret", new ret());
 
-        GeneralCommandsMap.put("help", new help(app));
-        GeneralCommandsMap.put("quit", new quit(app));
-        GeneralCommandsMap.put("clear", new clear(app));
-        GeneralCommandsMap.put("login", new login(app));
-        GeneralCommandsMap.put("ls", new ls(app));
-        GeneralCommandsMap.put("search", new search(app));
-
-        StudentCommandsMap.put("borrow", new borrow(app));
-
-        AdminCommandsMap.put("update", new update(app));
-        AdminCommandsMap.put("add", new add(app));
-        AdminCommandsMap.put("del", new del(app));
+        AdminCommandsMap.put("update", new update());
+        AdminCommandsMap.put("add", new add());
+        AdminCommandsMap.put("del", new del());
     }
 
     private Optional<Cmd> getCommand(String commandName) {
 
-        switch (user) {
+        switch (App.getUser()) {
             case NULL -> {
                 return Optional.ofNullable(GeneralCommandsMap.get(commandName));
             }

@@ -17,6 +17,9 @@ public enum BusinessExceptionEnum implements StatusCode {
     STUDENT_CONTRACT_NUMBER_EXISTED(2003, "所填电话号码已存在"),
     BOOK_NOT_FOUND(2004, "未查找到书籍"),
     AVAILABLE_BOOK_NOT_FOUND(2005, "未查找到可借书籍"),
+    ALREADY_BORROWED_BOOK(2006, "不可重复借阅同一本书籍"),
+    BOOK_UNRETURNED(2007, "该书籍还未归还"),
+    UNEXISTED_RECORD(2008, "该记录不存在"),
 
     // 非法参数错误码
     COMMAND_ERROR(4001, "无效命令"),
@@ -30,11 +33,13 @@ public enum BusinessExceptionEnum implements StatusCode {
     FEATURE_NOT_DEVELOPED(5000, "功能待开发"),
     UPDATE_FAIL(5003, "更新失败"),
     NO_SUCH_FILE(5004, "文件不存在"),
+    SQL_FOREIGN_KEY_ERROR(5005, "外键错误"),
 
     // 登录错误码
     INCORRECT_PASSWORD(6000, "密码错误"),
     UNEXISTED_STUDENT_ID(6001, "该学号不存在"),
-    UNEXISTED_ADMIN_ID(6002, "该ID不存在");
+    UNEXISTED_ADMIN_ID(6002, "该ID不存在"),
+    LOGIN_SESSION_EXPIRED(6003, "登录失效，需重新登录");
 
     private final int code;
     private final String message;

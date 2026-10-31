@@ -1,29 +1,41 @@
 package com.xietee.service;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.xietee.cli.UserType;
 import com.xietee.dao.BookMapper;
+import com.xietee.dao.RecordMapper;
 import com.xietee.dao.StudentMapper;
 import com.xietee.dto.BookSaveDTO;
 import com.xietee.dto.BookUpdateDTO;
 import com.xietee.dto.StudentSaveDTO;
 import com.xietee.dto.StudentUpdateDTO;
+import com.xietee.entity.Admin;
 import com.xietee.entity.Book;
+import com.xietee.entity.Record;
 import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
+import static com.alibaba.fastjson2.JSONWriter.Feature.PrettyFormat;
 import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class AdminService {
 
     private final StudentMapper studentMapper;
     private final BookMapper bookMapper;
+    private final RecordMapper recordMapper;
 
-    public AdminService(StudentMapper studentMapper, BookMapper bookMapper) {
+    public AdminService(StudentMapper studentMapper, BookMapper bookMapper, RecordMapper recordMapper) {
         this.studentMapper = studentMapper;
         this.bookMapper = bookMapper;
+        this.recordMapper = recordMapper;
     }
 
     /*
@@ -97,7 +109,7 @@ public class AdminService {
     }
 
     // 模糊搜索
-    public List<Student> fuzzySearchStudent (String keyword) {
+    public List<Student> fuzzySearchStudent(String keyword) {
 
         List<Student> allStudents = findAllStudent();
         if (keyword.isEmpty()) return allStudents;
@@ -206,7 +218,7 @@ public class AdminService {
     }
 
     // 模糊搜索
-    public List<Book> fuzzySearchBook (String keyword) {
+    public List<Book> fuzzySearchBook(String keyword) {
 
         if (keyword.isEmpty()) return findAllBook();
 
@@ -226,24 +238,72 @@ public class AdminService {
                 null, bookSaveDTO.ISBN(),
                 bookSaveDTO.title(),
                 bookSaveDTO.author(),
-                bookSaveDTO.available(), null, null);
+                bookSaveDTO.available() == null,
+                null,
+                null);
         return bookMapper.insertBook(book);
     }
 
     // 更新
-    public int updateBookById(Long id ,BookUpdateDTO bookUpdateDTO) {
+    public int updateBookById(Long id, BookUpdateDTO bookUpdateDTO) {
         Book book = bookMapper.findById(id).orElseThrow(
                 () -> new BusinessException(UPDATE_FAIL));
 
         book.setTitle(bookUpdateDTO.title());
         book.setAuthor(bookUpdateDTO.author());
-        book.setAvailable(bookUpdateDTO.available());
+        // 可借状态由借阅/归还流程维护，这里不改 available
 
         return bookMapper.updateById(book);
     }
 
     // 删除
     public int deleteBookById(Long id) {
+        Book book = findBookById(id);
+        // 不可借 说明书还没还回来 不允许删除
+        if (!book.isAvailable()) throw new BusinessException(BOOK_UNRETURNED);
+
         return bookMapper.deleteById(id);
+    }
+
+    public List<Record> findAllRecord() {
+
+        List<Record> records = recordMapper.findAll();
+
+        if (records.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+
+        return records;
+    }
+
+    public List<Record> findUnReturnedRecord() {
+
+        List<Record> records = recordMapper.findUnReturned();
+
+        if (records.isEmpty()) {
+            throw new BusinessException(NO_DATA);
+        }
+
+        return records;
+    }
+
+    // json
+    public static void writeToJSON(Admin admin) {
+
+        Map<String, String> json = new HashMap<>(Map.of(
+                "userType", UserType.ADMIN.getString(),
+                "id", admin.getAdminID(),
+                "name", ""
+        ));
+
+        String jsonString = JSONObject.toJSONString(json, PrettyFormat);
+        Path path = Paths.get("src", "main", "resources", "user.json");
+        File file = path.toFile();
+        try (FileWriter writer = new FileWriter(file, false)) {
+            if (!Files.exists(path)) Files.createFile(path);
+            writer.write(jsonString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

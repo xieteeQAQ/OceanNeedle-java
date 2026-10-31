@@ -16,8 +16,6 @@ import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class search implements Cmd {
 
-    private final App app;
-
     private String object = "";
 
     private String keyword = "";
@@ -25,21 +23,20 @@ public class search implements Cmd {
     private boolean allBook = false;
 
     private final Set<String> objectsForStudent = new HashSet<>(Set.of(
-            "record", "book"
+            "book"
     ));
     private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
-            "student", "record", "book"
+            "student", "book"
     ));
     private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
-            "student", "record", "book", "admin", "developer"
+            "student", "book", "admin", "developer"
     ));
 
-    private static final String optionForStudent = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录";
-    private static final String optionForAdmin = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生";
-    private static final String optionForDeveloper = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生 \n[4]管理员 \n[5]开发者";
+    private static final String optionForStudent = "要搜搜的对象是? \n[0]取消 \n[1]书籍";
+    private static final String optionForAdmin = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
+    private static final String optionForDeveloper = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]管理员 \n[4]开发者";
 
-    public search(App app) {
-        this.app = app;
+    public search() {
     }
 
     private String getOption() {
@@ -80,7 +77,7 @@ public class search implements Cmd {
 
     // 考虑用户体验 暂时只提供操作最简单的模糊搜索
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 
@@ -94,7 +91,34 @@ public class search implements Cmd {
             }
         }
 
-        if (object.equals("student") || object.equals("3")) {
+        if (object.equals("book") || object.equals("1")) {
+
+            if (keyword.isEmpty()) {
+
+                ui.barPrintOption("模糊搜索(ISBN-13 书名 作者)");
+                keyword = ui.readInput("Keyword > ").trim();
+            }
+
+            List<Book> books;
+            // 搜索要操作的对象 让用户选择 返回序号和搜索结果
+            if (allBook) {
+                books = app.getAdminService().fuzzySearchBook(keyword);
+            } else {
+                books = app.getAdminService().fuzzySearchBookWithCount(keyword);
+            }
+            // 查不到就返回 交给其他函数处理
+            if (books.isEmpty()) return App.getUser() == UserType.STUDENT
+                    ? Result.warn(AVAILABLE_BOOK_NOT_FOUND)
+                    : Result.warn(BOOK_NOT_FOUND);
+
+            // 数据可视化
+            List<String> lines = new ArrayList<>(books.stream().map(Book::toString).toList());
+
+            ui.consoleWriteTitle("查询结果");
+            ui.consoleWriteList(lines);
+
+            return Result.success("查询成功", null);
+        } else if (object.equals("student") || object.equals("2")) {
 
             if (keyword.isEmpty()) {
 
@@ -109,41 +133,6 @@ public class search implements Cmd {
 
             // 数据可视化
             List<String> lines = new ArrayList<>(students.stream().map(Student::toString).toList());
-
-            ui.consoleWriteTitle("查询结果");
-            ui.consoleWriteList(lines);
-
-            return Result.success("查询成功", null);
-        } else if (object.equals("book") || object.equals("2")) {
-
-            if (keyword.isEmpty()) {
-
-                ui.barPrintOption("模糊搜索(ISBN-13 书名 作者)");
-                keyword = ui.readInput("Keyword > ").trim();
-            }
-
-            List<Book> books;
-            // 搜索要操作的对象 让用户选择 返回序号和搜索结果
-            if (allBook) {
-                if (App.getUser() == UserType.STUDENT) {
-                    books = app.getStudentService().fuzzySearchAvailableBook(keyword);
-                } else {
-                    books = app.getAdminService().findAllBook();
-                }
-            } else {
-                if (App.getUser() == UserType.STUDENT) {
-                    books = app.getStudentService().fuzzySearchAvailableBookWithCount(keyword);
-                } else {
-                    books = app.getAdminService().findAllBookWithCount();
-                }
-            }
-            // 查不到就返回 交给其他函数处理
-            if (books.isEmpty()) return App.getUser() == UserType.STUDENT
-                    ? Result.warn(AVAILABLE_BOOK_NOT_FOUND)
-                    : Result.warn(BOOK_NOT_FOUND);
-
-            // 数据可视化
-            List<String> lines = new ArrayList<>(books.stream().map(Book::toString).toList());
 
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(lines);
@@ -164,17 +153,20 @@ public class search implements Cmd {
         for (int i = 0; i < args.size(); i++) {
 
             String arg = args.get(i);
-            if (i == 0) {
-                if (objectsContains(arg)) {
-                    this.object = arg;
-                } else {
-                    return Result.warn(COMMAND_PARAM_ERROR);
+            switch (arg) {
+                case "-o", "--object" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    String argsObject = args.get(i + 1);
+
+                    if (!objectsContains(argsObject)) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.object = argsObject;
+                    i++;
                 }
-            } else if (i == 1) {
-                keyword = args.get(1);
-            } else if (i == 2) {
-                if (object.equals("book") && arg.equals("--all")) {
-                    allBook = true;
+                case "-a", "--all" -> this.allBook = true;
+                case "-k", "--keyword" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.keyword = args.get(i + 1);
+                    i++;
                 }
             }
         }

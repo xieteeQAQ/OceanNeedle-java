@@ -28,13 +28,9 @@ public class help implements Cmd {
 
     private String commandName = "all";
 
-    private final App app;
+    private final Logger log = LoggerFactory.getLogger(help.class);
 
-    private Logger log = LoggerFactory.getLogger(help.class);
-
-    public help(App app) {
-        this.app = app;
-    }
+    public help() {}
 
     private String getDescription(String commandName) {
 
@@ -57,7 +53,7 @@ public class help implements Cmd {
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 

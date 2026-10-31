@@ -6,7 +6,6 @@ import com.xietee.common.Result;
 import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.ui.AppUI;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,29 +15,19 @@ import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class ls implements Cmd {
 
-    @Setter
-    private App app;
-
     private String object = "";
 
     private boolean allBook = false;
 
-    private final Set<String> objectsForStudent = new HashSet<>(Set.of(
-            "record", "book"
-    ));
-    private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
-            "student", "record", "book"
-    ));
-    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
-            "student", "record", "book", "admin", "developer"
-    ));
+    private final Set<String> objectsForStudent = new HashSet<>(Set.of("book"));
+    private final Set<String> objectsForAdmin = new HashSet<>(Set.of("student", "book"));
+    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of("student", "book", "admin", "developer"));
 
-    private static final String optionForStudent = "要列出的对象是? \n[0]取消 \n[1]书籍 \n[2]记录";
-    private static final String optionForAdmin = "要列出的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生";
-    private static final String optionForDeveloper = "要列出的对象是? \n[0]取消 \n[1]书籍 \n[2]记录 \n[3]学生 \n[4]管理员 \n[5]开发者";
+    private static final String optionForStudent = "要列出的对象是? \n[0]取消 \n[1]书籍";
+    private static final String optionForAdmin = "要列出的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
+    private static final String optionForDeveloper = "要列出的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]管理员 \n[4]开发者";
 
-    public ls(App app) {
-        this.app = app;
+    public ls() {
     }
 
     private String getOption() {
@@ -79,63 +68,60 @@ public class ls implements Cmd {
         for (int i = 0; i < args.size(); i++) {
 
             String arg = args.get(i);
-            if (i == 0) {
-                if (objectsContains(arg)) {
-                    this.object = arg;
-                } else {
-                    return Result.warn(COMMAND_PARAM_ERROR);
+            switch (arg) {
+                case "-o", "--object" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    String argsObject = args.get(i + 1);
+
+                    if (!objectsContains(argsObject)) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.object = argsObject;
+                    i++;
                 }
-            } else if (i == 1) {
-                if (object.equals("book") && arg.equals("--all")) {
-                    allBook = true;
-                }
+                case "-a", "--all" -> this.allBook = true;
             }
         }
         return Result.success(NONE);
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 
         if (object.isEmpty()) {
-            ui.barPrintOption(getOption());
-            object = ui.readInput("Option > ").trim();
-            if (object.equals("0")) {
-                return Result.success("", null);
-            } else if (object.isEmpty()) {
-                return Result.warn(INVALID_NUMBER);
+
+            if (App.getUser() == UserType.STUDENT) {
+                object = "book";
+            } else {
+                ui.barPrintOption(getOption());
+                object = ui.readInput("Option > ").trim();
+                if (object.equals("0")) {
+                    return Result.success("", null);
+                } else if (object.isEmpty()) {
+                    return Result.warn(INVALID_NUMBER);
+                }
             }
         }
 
-        if (object.equals("student") || object.equals("3")) {
-            List<Student> allStudents = app.getAdminService().findAllStudent();
-            List<String> visualized = allStudents.stream().map(Student::toString).toList();
-            ui.consoleWriteTitle("查询结果");
-            ui.consoleWriteList(visualized);
-
-            return Result.success(NONE);
-        } else if (object.equals("book") || object.equals("1")) {
+        if (object.equals("book") || object.equals("1")) {
 
             List<Book> allBooks;
 
             if (allBook) {
-                if (App.getUser() == UserType.STUDENT) {
-                    allBooks = app.getStudentService().findAllAvailableBook();
-                } else {
-                    allBooks = app.getAdminService().findAllBook();
-                }
+                allBooks = app.getAdminService().findAllBook();
             } else {
-                if (App.getUser() == UserType.STUDENT) {
-                    allBooks = app.getStudentService().findAllAvailableBookWithCount();
-                } else {
-                    allBooks = app.getAdminService().findAllBookWithCount();
-                }
+                allBooks = app.getAdminService().findAllBookWithCount();
             }
 
             List<String> visualized = allBooks.stream().map(Book::toString).toList();
 
+            ui.consoleWriteTitle("查询结果");
+            ui.consoleWriteList(visualized);
+
+            return Result.success(NONE);
+        } else if (object.equals("student") || object.equals("2")) {
+            List<Student> allStudents = app.getAdminService().findAllStudent();
+            List<String> visualized = allStudents.stream().map(Student::toString).toList();
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(visualized);
 

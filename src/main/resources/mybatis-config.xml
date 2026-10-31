@@ -33,6 +33,7 @@
         <mapper resource="com/xietee/mapper/StudentMapper.xml"/>
         <mapper resource="com/xietee/mapper/BookMapper.xml"/>
         <mapper resource="com/xietee/mapper/AdminMapper.xml"/>
+        <mapper resource="com/xietee/mapper/RecordMapper.xml"/>
     </mappers>
 
 </configuration>

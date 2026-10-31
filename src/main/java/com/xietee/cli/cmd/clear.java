@@ -9,14 +9,10 @@ import static com.xietee.exception.BusinessExceptionEnum.NONE;
 
 public class clear implements Cmd {
 
-    private final App app;
-
-    public clear(App app) {
-        this.app = app;
-    }
+    public clear() {}
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         app.getUi().clearConsole();
         return Result.success(NONE);

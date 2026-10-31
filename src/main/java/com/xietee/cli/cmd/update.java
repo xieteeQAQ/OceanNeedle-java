@@ -10,7 +10,7 @@ import com.xietee.entity.Student;
 import com.xietee.exception.BusinessException;
 import com.xietee.ui.AppUI;
 import com.xietee.util.ValidationUtils;
-import lombok.Setter;
+import com.xietee.util.numberUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +20,6 @@ import java.util.Set;
 import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class update implements Cmd {
-
-    @Setter
-    private App app;
 
     private String object = "";
 
@@ -38,9 +35,7 @@ public class update implements Cmd {
     private static final String optionForAdmin = "要更新的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
     private static final String optionForDeveloper = "要更新的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]记录 \n[4]管理员 \n[5]开发者";
 
-    public update(App app) {
-        this.app = app;
-    }
+    public update() {}
 
     private String getOption() {
         if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
@@ -68,23 +63,32 @@ public class update implements Cmd {
         if (args.isEmpty()) {
             return Result.success(NONE);
         }
-        String argsObject = args.getFirst();
 
-        if (objectsContains(argsObject)) {
-            this.object = argsObject;
-        } else {
-            return Result.warn(COMMAND_PARAM_ERROR);
-        }
+        for (int i = 0; i < args.size(); i++) {
 
-        if (args.size() > 1) {
-            key = args.get(1);
+            String arg = args.get(i);
+            switch (arg) {
+                case "-o", "--object" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    String argsObject = args.get(i + 1);
+
+                    if (!objectsContains(argsObject)) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.object = argsObject;
+                    i++;
+                }
+                case "-k", "--key" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.key = args.get(i + 1);
+                    i++;
+                }
+            }
         }
 
         return Result.success(NONE);
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 
@@ -155,7 +159,7 @@ public class update implements Cmd {
                     return Result.warn(COMMAND_NEED_PARAM);
                 }
 
-            } else if (!key.matches("^[1-9]\\d*$")) {
+            } else if (!numberUtils.isInteger(key)) {
                 return Result.warn(INVALID_NUMBER);
             }
 
@@ -166,14 +170,12 @@ public class update implements Cmd {
             ui.getStatusBar().printInfo("(按回车可跳过)");
             String title = ui.readInput("书名(" + updateBook.getTitle() + ") > ").trim();
             String author = ui.readInput("作者(" + updateBook.getAuthor() + ") > ").trim();
-            String available = ui.readInput("是否借出(" + Book.map(updateBook.isAvailable()) + ") > ").trim();
 
-            // 创建学生 DTO 对象
+            // 书籍的可借状态由借阅/归还流程维护，管理员不能手动修改
             BookUpdateDTO bookUpdateDTO =
                     new BookUpdateDTO(
                             title.isEmpty() ? updateBook.getTitle() : title,
-                            author.isEmpty() ? updateBook.getAuthor() : author,
-                            Book.map(available));
+                            author.isEmpty() ? updateBook.getAuthor() : author);
 
             // 没更新数据视作更新成功
             if (bookUpdateDTO.equals(updateBook)) return Result.success(DATA_UNCHANGED);

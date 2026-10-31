@@ -1,12 +1,15 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
+import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.entity.Student;
 import com.xietee.ui.AppUI;
+import com.xietee.util.numberUtils;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
@@ -15,18 +18,24 @@ import static com.xietee.exception.BusinessExceptionEnum.PARAM_ERROR;
 
 public class del implements Cmd {
 
-    private final App app;
-
     private String object = "";
 
     private String key = "";
 
-    private final Set<String> objects = new HashSet<>(Set.of(
-            "student", "admin", "developer", "record", "book"
+    private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
+            "book"
+    ));
+    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
+            "book", "student", "record", "admin", "developer"
     ));
 
-    public del(App app) {
-        this.app = app;
+    public del() {}
+
+    private boolean objectsContains(String object) {
+        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+            return objectsForDeveloper.contains(object);
+        }
+        return objectsForAdmin.contains(object);
     }
 
     @Override
@@ -35,33 +44,47 @@ public class del implements Cmd {
         if (args.isEmpty()) {
             return Result.success(NONE);
         }
-        String argsObject = args.getFirst();
 
-        if (objects.contains(argsObject)) {
-            this.object = argsObject;
-        } else {
-            return Result.warn(COMMAND_PARAM_ERROR);
-        }
+        for (int i = 0; i < args.size(); i++) {
 
-        if (args.size() > 1) {
-            key = args.get(1);
+            String arg = args.get(i);
+            switch (arg) {
+                case "-o", "--object" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    String argsObject = args.get(i + 1);
+
+                    if (!objectsContains(argsObject)) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.object = argsObject;
+                    i++;
+                }
+                case "-k", "--key" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.key = args.get(i + 1);
+                    i++;
+                }
+            }
         }
 
         return Result.success(NONE);
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 
         if (object.isEmpty()) {
-            ui.barPrintOption("要删除的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
-            object = ui.readInput("Option > ").trim();
-            if (object.equals("0")) {
-                return Result.success("", null);
-            } else if (object.isEmpty()) {
-                return Result.warn(INVALID_NUMBER);
+
+            if (App.getUser() == UserType.ADMIN) {
+                object = "book";
+            } else {
+                ui.barPrintOption("要删除的对象是? \n[0]取消 \n[1]学生 \n[2]书籍 \n[3]记录 \n[4]管理员 \n[5]开发者");
+                object = ui.readInput("Option > ").trim();
+                if (object.equals("0")) {
+                    return Result.success("", null);
+                } else if (object.isEmpty()) {
+                    return Result.warn(INVALID_NUMBER);
+                }
             }
         }
 
@@ -96,7 +119,7 @@ public class del implements Cmd {
 
             if (key.isEmpty()) {
                 return Result.warn(COMMAND_NEED_PARAM);
-            } else if (!key.matches("^[1-9]\\d*$")) {
+            } else if (!numberUtils.isInteger(key)) {
                 return Result.warn(INVALID_NUMBER);
             }
 

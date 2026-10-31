@@ -9,14 +9,10 @@ import static com.xietee.exception.BusinessExceptionEnum.NONE;
 
 public class quit implements Cmd {
 
-    private final App app;
-
-    public quit(App app) {
-        this.app = app;
-    }
+    public quit() {}
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         app.setRunning(false);
         return Result.success(NONE);

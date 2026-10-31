@@ -8,7 +8,7 @@ public record StudentUpdateDTO(
 
 
         @NotBlank(message = "密码不能为空")
-        @Size(max = 32, min = 8, message = "密码长度至少为 8 ，最长不超过 32")
+        @Size(max = 16, min = 8, message = "密码长度至少为 8 ，最长不超过 16")
         String password,
 
         @NotBlank(message = "电话号码不能为空")

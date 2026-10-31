@@ -1,6 +1,7 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
+import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.dto.BookSaveDTO;
 import com.xietee.dto.StudentSaveDTO;
@@ -11,22 +12,29 @@ import com.xietee.util.ValidationUtils;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
 
 public class add implements Cmd {
 
-    private final App app;
-
     private String object = "";
 
-    private final Set<String> objects = new HashSet<>(Set.of(
-            "student", "admin", "developer", "record", "book"
+    private final Set<String> objectsForAdmin = new HashSet<>(Set.of(
+            "book"
+    ));
+    private final Set<String> objectsForDeveloper = new HashSet<>(Set.of(
+            "book", "student", "record", "admin", "developer"
     ));
 
-    public add(App app) {
-        this.app = app;
+    public add() {}
+
+    private boolean objectsContains(String object) {
+        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+            return objectsForDeveloper.contains(object);
+        }
+        return objectsForAdmin.contains(object);
     }
 
     @Override
@@ -35,19 +43,27 @@ public class add implements Cmd {
         if (args.isEmpty()) {
             return Result.success(NONE);
         }
-        String argsObject = args.getFirst();
+        for (int i = 0; i < args.size(); i++) {
 
-        if (objects.contains(argsObject)) {
-            this.object = argsObject;
-        } else {
-            return Result.warn(COMMAND_PARAM_ERROR);
+            String arg = args.get(i);
+
+            switch (arg) {
+                case "-o", "--object" -> {
+                    if (i + 1 >= args.size()) return Result.warn(COMMAND_PARAM_ERROR);
+                    String argsObject = args.get(i + 1);
+
+                    if (!objectsContains(argsObject)) return Result.warn(COMMAND_PARAM_ERROR);
+                    this.object = argsObject;
+                    i++;
+                }
+            }
         }
 
         return Result.success(NONE);
     }
 
     @Override
-    public Result<Void> execute() {
+    public Result<Void> execute(App app) {
 
         final AppUI ui = app.getUi();
 

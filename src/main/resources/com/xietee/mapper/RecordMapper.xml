@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xietee.dao.RecordMapper">
+    <!--    查询-->
+    <select id="findAll" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record
+    </select>
+    <select id="findById" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record where id = #{id}
+    </select>
+    <select id="findByBookID" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record where bookID = #{id}
+    </select>
+    <select id="findByStudentID" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record where studentID = #{studentID}
+    </select>
+    <select id="findByISBN" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record where ISBN = #{ISBN}
+    </select>
+    <select id="findUnReturned" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record
+        where returnTime is null
+    </select>
+    <select id="findUnReturnedByStudentID" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record
+        where returnTime is null
+        AND studentID = #{studentID}
+    </select>
+    <select id="findUnReturnedByStudentIDAndISBN" resultType="com.xietee.entity.Record">
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record
+        where returnTime is null
+        AND studentID = #{studentID}
+        AND ISBN = #{ISBN}
+    </select>
+    <select id="fuzzySearch" resultType="com.xietee.entity.Record">
+        <bind name="pattern" value="'%' + keyword + '%'"/>
+        select id, bookID, studentID, ISBN, borrowTime, returnTime from record
+        where bookID like #{pattern}
+        OR studentID like #{pattern}
+        OR ISBN like #{pattern}
+    </select>
+
+    <!--    插入-->
+    <insert id="insertRecord">
+        insert into record(bookID, studentID, ISBN, borrowTime, returnTime) VALUES (#{bookID}, #{studentID}, #{ISBN}, now(), null)
+    </insert>
+
+    <!--    更新-->
+    <update id="updateReturnTimeById">
+        update record set returnTime = now() where id = #{id}
+    </update>
+
+    <!--    删除-->
+    <delete id="deleteById">
+        delete from record where id = #{id}
+    </delete>
+</mapper>
