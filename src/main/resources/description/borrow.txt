@@ -1,0 +1,16 @@
+    > borrow -i <bookID>
+
+        描述
+            学生借阅一本可借书籍。成功后生成借阅记录, 并把该书标记为不可借。
+            同一 ISBN 存在未归还记录时, 不能重复借阅。
+
+        -i <bookID>
+            书籍编号, 必须是正整数, 必须提供。
+            可以先执行 ls -o book -a 或 search -o book -a 查看编号。
+
+        示例
+            ls -o book -a
+            borrow -i 1
+
+        权限
+            学生

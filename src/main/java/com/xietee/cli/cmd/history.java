@@ -18,7 +18,7 @@ public class history implements Cmd {
 
     private boolean onlyUnReturned = false;
 
-    public history() {};
+    public history() {}
 
     @Override
     public Result<Void> execute(App app) {
@@ -67,6 +67,7 @@ public class history implements Cmd {
             String arg = args.get(i);
             if (arg.equals("-u")) {
                 this.onlyUnReturned = true;
+                break;
             }
         }
 

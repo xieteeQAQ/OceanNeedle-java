@@ -1,0 +1,28 @@
+    > search [options]
+
+        描述
+            按关键词模糊搜索书籍或学生。
+            书籍匹配 ISBN-13 / 书名 / 作者; 学生匹配学号 / 姓名 / 手机号。
+
+        [options]
+            -o, --object <object>
+                指定要搜索的对象:
+                    book       书籍
+                    student    学生(仅管理员)
+
+                省略时会询问要搜索的对象。
+
+            -k, --keyword <keyword>
+                搜索关键词; 省略时会在交互中询问。
+
+            -a, --all
+                逐本列出, 不按 ISBN 汇总。
+
+        示例
+            search -o book -k Java
+            search -o book -k 9787111 -a
+            search -o student -k 张三
+
+        权限
+            学生:   search -o book
+            管理员: search -o book / search -o student
