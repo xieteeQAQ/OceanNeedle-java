@@ -23,7 +23,10 @@ import static com.xietee.exception.BusinessExceptionEnum.*;
 public class help implements Cmd {
 
     private static final Set<String> commands = new HashSet<>(Set.of(
-            "all", "help", "ls", "search", "del", "update", "clear", "add", "quit"
+            "all",
+            "help", "ls", "search", "del",
+            "update", "clear", "add", "quit",
+            "borrow", "ret", "login", "history"
     ));
 
     private String commandName = "all";

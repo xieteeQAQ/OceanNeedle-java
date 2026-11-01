@@ -1,0 +1,30 @@
+    > ls [options]
+
+        描述
+            列出书籍或学生。管理员可以列出全部书籍和学生;
+
+        [options]
+            -o, --object <object>
+                指定要列出的对象:
+                    book       书籍
+                    student    学生(仅管理员)
+
+                省略时会询问要列出的对象; 学生在交互中默认列出书籍。
+
+            -a, --all
+                逐本列出, 不按 ISBN 汇总。
+                学生都可列出全部副本。
+
+        输出说明
+            汇总模式(默认): ISBN / 书名 / 作者 / 剩余 x/y
+            逐本模式(-a):   编号 / ISBN / 书名 / 作者 / 是否可借
+
+        示例
+            ls
+            ls -o book
+            ls -o book -a
+            ls -o student
+
+        权限
+            学生:   ls -o book
+            管理员: ls -o book / ls -o student

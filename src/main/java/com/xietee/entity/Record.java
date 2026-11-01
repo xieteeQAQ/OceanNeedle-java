@@ -21,7 +21,7 @@ public class Record {
     @Override
     public String toString() {
         return String.format(
-                "学号: %s 编号: %d ISBN: %s 借出时间: %s 归还时间: %s",
-                studentID, bookID, ISBN, borrowTime, returnTime == null ? "未归还" : returnTime);
+                "学号: %s 编号: %d 书籍编号: %d ISBN: %s 借出时间: %s 归还时间: %s",
+                studentID, id, bookID, ISBN, borrowTime, returnTime == null ? "未归还" : returnTime);
     }
 }

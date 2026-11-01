@@ -29,7 +29,9 @@ public class AppUI implements AutoCloseable {
                 TerminalBuilder.builder().name("OceanNeedle--java-style").system(true).build();
         this.lineReader =
                 LineReaderBuilder.builder()
-                        .completer(new StringsCompleter("help", "quit", "ls", "clear", "search", "update", "add", "del", "borrow", "ret"))
+                        .completer(new StringsCompleter("help", "quit", "ls", "clear",
+                                "search", "update", "add", "del",
+                                "borrow", "ret", "history", "login"))
                         .terminal(terminal)
                         .build();
         this.inputReader = new InputReader(lineReader);

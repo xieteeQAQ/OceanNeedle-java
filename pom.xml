@@ -5,7 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.xietee</groupId>
-    <artifactId>itaemAssessment</artifactId>
+    <artifactId>OceanNeedle-java</artifactId>
+    <name>OceanNeedle-java</name>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

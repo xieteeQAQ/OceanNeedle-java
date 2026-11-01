@@ -1,13 +1,23 @@
-        ls [object]                         -- 列出所有
+        login [student|admin]                 -- 登录系统
 
-        search [object] [keyword]           -- 搜索对象
+        ls [-o object] [-a]                   -- 列出书籍/学生
 
-        add [object]                        -- 添加对象
+        search [-o object] [-k keyword] [-a]  -- 搜索书籍/学生
 
-        update [object] [keyword]           -- 更新对象
+        borrow -i <bookID>                    -- 借阅书籍（学生）
 
-        del [object] [keyword]              -- 删除对象
+        ret -i <recordID>                     -- 归还书籍（学生）
 
-        help [commandName]                  -- 查看命令使用方法
+        history [-u]                          -- 查看借阅历史
 
-        quit                                -- 退出程序
+        add [-o object]                       -- 添加数据（管理员）
+
+        update [-o object] [-k key]           -- 更新数据（管理员）
+
+        del [-o object] [-k key]              -- 删除数据（管理员）
+
+        help [commandName]                    -- 查看命令使用方法
+
+        clear                                 -- 清屏
+
+        quit                                  -- 退出程序

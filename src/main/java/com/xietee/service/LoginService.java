@@ -7,7 +7,6 @@ import com.xietee.dao.AdminMapper;
 import com.xietee.dao.StudentMapper;
 import com.xietee.entity.Admin;
 import com.xietee.entity.Student;
-import com.xietee.exception.BusinessException;
 import com.xietee.exception.LoginException;
 
 import java.io.File;
