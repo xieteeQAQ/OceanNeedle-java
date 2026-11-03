@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--
+    测试专用 MyBatis 配置：
+    1. 使用 H2 内存数据库，跑测试不需要本地安装 MySQL；
+    2. 显式注册 mapper XML，和 src/main/resources/mybatis-config.xml 的 SQL 完全一致。
+-->
+<configuration>
+
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <environments default="test">
+        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="org.h2.Driver"/>
+                <!-- MODE=MySQL：让 H2 兼容 AUTO_INCREMENT 等 MySQL 写法
+                     DB_CLOSE_DELAY=-1：JVM 存活期间不销毁内存库
+                     DATABASE_TO_LOWER=TRUE：不区分大小写，studentID 之类的列名能正常映射 -->
+                <property name="url"
+                          value="jdbc:h2:mem:itaem_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1"/>
+                <property name="username" value="sa"/>
+                <property name="password" value=""/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!-- 注意：XML 在 com/xietee/mapper 下，与接口 com.xietee.dao.StudentMapper 不同包，
+             因此必须用 resource 显式注册，不能只写 <mapper class="..."/> -->
+        <mapper resource="com/xietee/mapper/StudentMapper.xml"/>
+        <mapper resource="com/xietee/mapper/BookMapper.xml"/>
+        <mapper resource="com/xietee/mapper/AdminMapper.xml"/>
+        <mapper resource="com/xietee/mapper/RecordMapper.xml"/>
+    </mappers>
+
+</configuration>
