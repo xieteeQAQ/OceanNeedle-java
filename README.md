@@ -14,19 +14,19 @@
 
 这是一个基于 Java 语言实现的图书馆管理系统CLI，目前有学生端和管理员双端，学生和管理员端都可以对书籍进行基本查询操作，而管理员可以完成对书籍的添加、状态更新、删除，除此之外，系统还有历史记录功能，学生和管理员都能查询
 
-|               功能               |            实现            |
-| :------------------------------: | :------------------------: |
-|     学生查询、借阅、归还书籍     |             ✅             |
-| 管理员查询、更新、新增、删除书籍 |             ✅             |
-|            开发者模式            |          ⚠️待实现          |
-|           历史记录查询           |             ✅             |
-|             错误处理             |             ✅             |
-|             权限约束             |             ✅             |
-|     持久化登录 (Remember Me)     |             ✅             |
-|           登录失效检查           |             ✅             |
-|      命令补全 命令历史记录       |             ✅             |
-|             命令指南             |             ✅             |
-|              跨平台              | ❌仅 macOS  其它平台未测试 |
+|               功能               |               实现               |
+| :------------------------------: | :------------------------------: |
+|     学生查询、借阅、归还书籍     |                ✅                |
+| 管理员查询、更新、新增、删除书籍 |                ✅                |
+|            开发者模式            |             ⚠️待实现             |
+|           历史记录查询           |                ✅                |
+|             错误处理             |                ✅                |
+|             权限约束             |                ✅                |
+|     持久化登录 (Remember Me)     |                ✅                |
+|           登录失效检查           |                ✅                |
+|      命令补全 命令历史记录       |                ✅                |
+|             命令指南             |                ✅                |
+|              跨平台              | ⚠️可跨 windows mac<br />但不稳定 |
 
 ## 依赖 / 技术栈
 
@@ -51,7 +51,9 @@
 
 ```
 .
-├── app.zsh         # 🛞jar包启动脚本
+├── app.zsh         # 🛞jar包启动脚本( macOS / Linux )
+├── build.bat       # 📦Windows 11 打包脚本( 需要 JDK 21+ 与 Maven )
+├── run.bat         # 🛞Windows 启动脚本( dist 目录或项目根目录都能用 )
 ├── 📁 logs         # 📝日志存放
 ├── pom.xml         # 📦maven包管理
 ├── README.md       # 📝项目简介
@@ -142,21 +144,80 @@
 
 ---
 
-- 由于我的开发平台是 mac，其他平台（windows、 linux） 没有测试过
-- 还没有写打包工具，但你可以尝试 clone 我的仓库，然后运行启动脚本
+- 由于我的开发平台是 mac，其他平台可能会有问题
+- 准备：无论你是哪个平台，都需要下载 java JDK 21+ 才能跑程序，还有 MySQL，不然核心命令（ls search del update ...）是跑不了的，会直接提示"程序异常"，如果都没有下载......这里准备了链接，不知道具体安装步骤的请看网上的教程
+
+  > java JDK 下载: https://www.oracle.com/cn/java/technologies/downloads/
+  > MySQL 下载: https://www.mysql.com/cn/products/community/
+  > maven 下载: https://learn.microsoft.com/zh-cn/java/openjdk/download
+
+- 然后确保 MySQL 服务启动，在终端执行这条命令
+
+  ```bash
+  mysql -u root -p --default-character-set=utf8mb4 < init.sql
+  # 然后输入你的用户密码
+  ```
+
+- 找到 src/main/resources/jdbc.properties.example 这个配置文件，按提示填好你的数据库信息
+
+  ```text
+  jdbc.driver=com.mysql.cj.jdbc.Driver
+  jdbc.url=jdbc:mysql://localhost:3306/<数据库名称>?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+  jdbc.username=<数据库用户名>
+  jdbc.password=<数据库密码>
+  ```
+
+- **macOS / Linux**：clone 仓库后运行启动脚本 (Linux 还未测试)
 
   ```zsh
   git clone https://github.com/xieteeQAQ/OceanNeedle-java.git
+  cd ./OceanNeedle-java
   zsh ./app.zsh
   ```
 
-- 如果运行不了的话，只能自行打包了（不如问问神奇的 ai 大人！？）
+- **Windows 11**：
+
+  _方法一_ 直接运行已经打包好的 jar包
+
+  ```bat
+  java -jar target/OceanNeedle-java-1.0-SNAPSHOT.jar
+  # 如果不行就尝试方法二
+  ```
+
+  _方法二_ 通过脚本打包
+
+  需要 JDK 21+ 和 Maven，双击 `build.bat` 一键打包
+
+  > `pom.xml` 里给 `maven-compiler-plugin` 显式配置了 `annotationProcessorPaths`（注册 Lombok）。
+  > 因为 **JDK 23 起 javac 不再自动扫描 classpath 上的注解处理器**，不配置的话在 JDK 25/27 上
+  > 会编译失败，报一大片「找不到符号」—— `@Data` / `@Getter` 生成的 getter、setter 全部消失。
+
+  ```bat
+  build.bat                 # 编译 + 打包 + 组装运行目录 + 生成 zip
+  build.bat --skip-tests    # 跳过测试，打包更快
+  run.bat                   # 启动（dist 目录或项目根目录都能用）
+  ```
+
+  打包产物：
+
+  | 路径                                       | 说明                                           |
+  | ------------------------------------------ | ---------------------------------------------- |
+  | `target\OceanNeedle-java-1.0-SNAPSHOT.jar` | 可执行 jar，`Class-Path` 指向 `lib/`           |
+  | `target\lib\`                              | 运行期依赖，共 15 个 jar                       |
+  | `dist\OceanNeedle-win64\`                  | 可直接运行的目录（jar + lib + run.bat + 文档） |
+  | `dist\OceanNeedle-win64.zip`               | 分发包                                         |
+
+  > `build.bat` 会检查 JDK 版本、Maven、`jdbc.properties` 是否存在；
+  > 缺少 `jdbc.properties` 时会自动从 `jdbc.properties.example` 生成一份，然后停下来等你填密码。
 
 ## 已知问题
 
 ---
 
 - 命令文档路径写死在代码中，当文件结构发生变动时，当前程序不会忽略异常而是一路上抛到`Main.java`
+- `help` 的命令文档和 `user.json` 都是用相对路径 `src/main/resources/...` 读取的，所以**不能在图方便的地方直接 `java -jar`**：`build.bat` 会把 `description/` 和 `user.json` 按同样的目录结构复制进 `dist`，再由 `run.bat` 先切换到该目录启动
+- `jdbc.properties` 会被一起打进 jar，里面的明文数据库密码也随之进入 jar / dist，不要把产物发给别人
+- `build.bat` / `run.bat` 里的提示只有英文：`.bat` 文件里写中文会让 cmd.exe 按代码页 + 字节偏移解析错位，出现 `'xx' is not recognized as an internal or external command`，所以宁可全用 ASCII
 - （可能还有没发现，或者我忘了的问题......）
 
 ## 怎么做出这样的诗山的
@@ -183,69 +244,183 @@ CREATE TABLE `record` (
 
 并没有 foreign 字样，那我为啥不用呢，因为物理外键不好管理，当你某一天突发奇想需要修改表结构的时候，地狱时刻来了，你可能需要小心翼翼地解除外键关系，小心翼翼地修改，再小心翼翼地接回去，反正一个不小心就会报一堆错，而且，大厂也不喜欢用物理外键，他们的理由更多，本项目我的表只储存一个特殊索引，作为一个其他表的名片来使用，实际上每个表没有任何物理联系，只有名义上的联系。表结构设计好了不代表可以一劳永逸，我们很难预料到开发过程中会出现什么问题，需要我们修改表结构，但我们一开始就能做的，就是留足够多的后路
 
-然后就开始正真设计应用层了。我们是服务于用户的，一个好看的 UI 是必不可少的，用户要的是体验，丝毫不在意你写代码用了什么范式( 除非...卧槽，用户彻底怒了😱 )，所以写几个 UI 类吧。一开始我想实现的是 TUI，可以用鼠标操作的命令终端，但我发现要实现这样的效果要学的东西不仅多，还比较复杂，我也没写过，直接这么做是不理智的，更何况核心代码是我自己来搓，不使用 AI。那为什么不用 AI 帮我搓？本项目中，AI 只用于帮我写配置文件和测试集，还有给我提意见，在 main/java 目录下的核心源码纯靠我手搓，说到底，这是一个学习项目，全给 AI 托管了，我学滚木吗，而且全给 AI 托管了，就变成 vibecoding 了，谁来维护？全给 AI 意淫了。因此我退而求其次做 CLI，一是我写过，二是好写( 好像是同一回事 )。 说回 UI，`AnsiColors.java`负责枚举 ansi 编码的颜色字符串，`ConsoleWriter.java`负责打印，`InputReader.java`负责输入，`StatusBar.java`负责打印状态栏，`AppUI.java`就负责将上面的功能封装起来，给`App.java`调用，其中`AppUI.java`还有获取终端对象，设置命令补全的功能。然后去实现 dao 层，我需要尽可能地提供基础的增删改查接口，不管以后会不会用到，然后是服务层，在这里就是调用增删改查的接口，还有异常抛出的处理，同时实现双端服务功能分离。同时在 dto 层实现请求规范，对象的什么属性是可以添加的，什么是不能更新的，全都规范起来，作为一种请求协议。再往上就是应用层了，`App.java`包含了程序的主循环，所有逻辑都在这里进行
+然后就开始正真设计应用程序了。我们是服务于用户的，一个好看的 UI 是必不可少的，用户要的是体验，丝毫不在意你写代码用了什么范式( 除非...卧槽，用户彻底怒了😱 )，所以写几个 UI 类吧。一开始我想实现的是 TUI，可以用鼠标操作的命令终端，但我发现要实现这样的效果要学的东西不仅多，还比较复杂，我也没写过，直接这么做是不理智的，更何况核心代码是我自己来搓，不使用 AI。
+
+为什么不直接用 AI 帮我搓？本项目中，AI 主要用于帮我写配置文件和测试集，还有给我提意见，在 main/java 目录下的核心源码纯靠我手搓，说到底，这是一个学习项目，全给 AI 托管了，我学了滚木，而且全给 AI 托管了，就变成 vibecoding 了，没人有能力来维护，全给 AI 意淫了。因此我退而求其次做 CLI，一是我写过，二是好写( 好像是同一回事 )。 说回 UI，`AnsiColors.java`负责枚举 ansi 编码的颜色字符串，`ConsoleWriter.java`负责打印，`InputReader.java`负责输入，`StatusBar.java`负责打印状态栏，`AppUI.java`就负责将上面的功能封装起来，给`App.java`调用，其中`AppUI.java`还有获取终端对象，设置命令补全的功能。
+
+`AppUI.java`**_的部分代码_**
+
+```Java
+private static final String welcomeTitle = "图书馆管理系统 (author: xieteeQAQ)";
+
+private static final List<String> welcomeOptions = new ArrayList<>(List.of(
+        "列出所有        --ls",
+        "查询           --search",
+        "更新           --update",
+        "新增           --add",
+        "删除           --del",
+        "命令用法        --help"));
+
+// 这个函数打印的就是程序中的 OceanNeedle 横幅
+public void showBanner() {
+    terminal.writer().println("\n".repeat(2) + AnsiColors.CYAN + BANNER + AnsiColors.RESET);
+}
+
+public void showWelcome() {
+    consoleWriteTitle(welcomeTitle);
+    consoleWriteList(welcomeOptions);
+}
+```
+
+然后去实现 dao 层，我需要尽可能地提供基础的增删改查接口，不管以后会不会用到，然后是服务层，在这里就是调用增删改查的接口，还有异常抛出的处理，同时实现双端服务功能分离。同时在 dto 层实现请求规范，对象的什么属性是可以添加的，什么是不能更新的，全都规范起来，作为一种请求协议。再往上就是应用层了，`App.java`包含了程序的主循环，所有逻辑都在这里进行
 
 **_`App.java`的部分代码_**
 
 ```java
 Result<Cmd> parseResult = command.parseAndGetCommand(line);
-                    if (parseResult.code() == 200) {
-                        cmd = parseResult.data();
-                        var executeResult = cmd.execute(this);
-                        cmd.reset();
-                        if (executeResult.code() == 200) {
-                            ui.barPrintSuccess(executeResult.message());
-                        } else {
-                            ui.barPrintWarning(executeResult.message());
-                        }
-                    } else {
-                        ui.barPrintWarning(parseResult.message());
-                    }
+if (parseResult.code() == 200) {
+    cmd = parseResult.data();
+    var executeResult = cmd.execute(this);
+    cmd.reset();
+    if (executeResult.code() == 200) {
+        ui.barPrintSuccess(executeResult.message());
+    } else {
+        ui.barPrintWarning(executeResult.message());
+    }
+} else {
+    ui.barPrintWarning(parseResult.message());
+}
 ```
 
-然后是 CLI 最核心的命令，`Command.java`负责将用户输入的命令行拆分成一个链表，然后对参数进行第一步解析：链表第一个元素是命令的名字，剩下都是参数，将第一个元素与存放已有命令的哈希表匹配，如果存在就返回这个命令的对象，进行第二次参数解析，这一次解析交给命令对象本身，解析如果通过了，就返回命令对象和参数给`App.java`，`App.java`调用对象接口执行命令并处理执行结果。说到命令对象，就是`cmd`这个文件夹里存放的 java 类，所有命令对象都是接口`Cmd.java`的实现，它们不仅存放着命令的具体逻辑，还存放着参数对应的属性，这些属性在参数解析的过程中被赋值，命令解析完成后重置为默认值。这种将每个命令都做成一个类的设计我参考了 Linux，不过我其实不知道 Linux 具体是不是类似这样的实现，我学得不深，大概了解到 linux 的每个命令的 c文件 都存放在系统中，是可以被找到的
+然后是 CLI 最核心的命令，`Command.java`负责将用户输入的命令行拆分成一个链表，然后对参数进行第一步解析：链表第一个元素是命令的名字，剩下都是参数，将第一个元素与存放已有命令的哈希表匹配，如果存在就返回这个命令的对象，进行第二次参数解析，这一次解析交给命令对象本身，解析如果通过了，就返回命令对象和参数给`App.java`，`App.java`调用对象接口执行命令并处理执行结果。说到命令对象，就是`cmd`这个文件夹里存放的 java 类，所有命令对象都是接口`Cmd.java`的实现，它们不仅存放着命令的具体逻辑，还存放着参数对应的属性，这些属性在参数解析的过程中被赋值，命令解析完成后重置为默认值。这种将每个命令都做成一个类的设计我参考了 Linux，不过我其实不知道 Linux 具体是不是类似这样的实现，我学得不深，大概了解到 linux 的每个命令的 c 文件 都存放在系统中，是可以被找到的
+
+**_命令接口_**
+
+```Java
+public interface Cmd {
+
+    Result<?> execute(App app); // 执行命令的接口
+
+    Result<Void> parse(List<String> args); // 参数解析接口 （这里是命令的第二次解析）
+
+    default void reset() {} // 属性重置接口
+}
+```
+
+**_命令对象的创建和分配_**
+
+```java
+public class Command {
+
+    private static final Map<String, Cmd> GeneralCommandsMap =
+            new HashMap<>();
+    private static final Map<String, Cmd> StudentCommandsMap =
+            new HashMap<>();
+    private static final Map<String, Cmd> AdminCommandsMap =
+            new HashMap<>();
+
+    public Command() {
+
+        // 通用命令
+        GeneralCommandsMap.put("help", new help());
+        GeneralCommandsMap.put("quit", new quit());
+        GeneralCommandsMap.put("clear", new clear());
+        GeneralCommandsMap.put("login", new login());
+        GeneralCommandsMap.put("ls", new ls());
+        GeneralCommandsMap.put("search", new search());
+        GeneralCommandsMap.put("history", new history());
+
+		// 学生专属命令
+        StudentCommandsMap.put("borrow", new borrow());
+        StudentCommandsMap.put("ret", new ret());
+
+        // 管理员专属命令
+        AdminCommandsMap.put("update", new update());
+        AdminCommandsMap.put("add", new add());
+        AdminCommandsMap.put("del", new del());
+    }
+
+    ...
+```
 
 **_命令的第一次解析_**
 
 ```Java
 public Result<Cmd> parseAndGetCommand(String line) {
 
-        List<String> parsedLine;
+    List<String> parsedLine;
 
-        if (line.isEmpty()) {
-            return Result.success(NONE);
-        }
-
-        parsedLine = Arrays.stream(line.split(" ")).toList();
-
-        String commandName = "";
-        List<String> args = new ArrayList<>();
-
-        for (int i = 0; i < parsedLine.size(); i++) {
-            if (i == 0) {
-                commandName = parsedLine.get(i);
-            } else {
-                args.add(parsedLine.get(i));
-            }
-        }
-
-        Optional<Cmd> cmdOptional = getCommand(commandName);
-        if (cmdOptional.isEmpty()) {
-            return Result.warn(COMMAND_ERROR);
-        }
-
-        var parseResult = cmdOptional.get().parse(args);
-        if (parseResult.code() != 200) {
-            return Result.warn(parseResult.code(), parseResult.message());
-        }
-
-        return Result.success(cmdOptional.get());
+    if (line.isEmpty()) {
+        return Result.success(NONE);
     }
+
+    parsedLine = Arrays.stream(line.split(" ")).toList(); // 以空格分离命令行
+
+    String commandName = "";
+    List<String> args = new ArrayList<>();
+
+    for (int i = 0; i < parsedLine.size(); i++) {
+        if (i == 0) {
+            commandName = parsedLine.get(i);
+        } else {
+            args.add(parsedLine.get(i));
+        }
+    }
+
+    Optional<Cmd> cmdOptional = getCommand(commandName);
+    if (cmdOptional.isEmpty()) {
+        return Result.warn(COMMAND_ERROR);
+    }
+
+    var parseResult = cmdOptional.get().parse(args);
+    if (parseResult.code() != 200) {
+        return Result.warn(parseResult.code(), parseResult.message());
+    }
+
+    return Result.success(cmdOptional.get());
+}
 ```
 
-除此之外，异常处理我除了自定义异常之外，还用了错误码/状态码，它们用枚举来实现`BusinessExceptionEnum.java`。还有其他的什么参数校验，时间处理，数字处理，数据可视化，持久化登录之类的我暂时不详细赘述了
+除此之外，异常处理我除了自定义异常之外，还用了错误码/状态码，它们用枚举来实现`BusinessExceptionEnum.java`
 
-说说心态吧，我是一个大一新生，专业是计算机科学与技术，每天都忙得莫名奇妙的，一门课结课了还要我来写篇论文，写一篇报告，还有很多莫名其妙的破事......如果累了，或者说觉得完成了一点小功能，我也会停下来刷刷视频，刷一刷崩铁的每日之类的，休息不是罪过，是好文明。我还是愿意用很多时间来开发这个项目，可能是我确实很喜欢学习计算机，喜欢创造一些东西吧，把学业，就业什么乱七八糟的抛到九霄之外后，我只是在干我喜欢，能让我感到快乐的事，即使编程一点也不轻松。人生不是一个目标，而是一种体验，我将这句我自己做的汤，送给每一位活在当下的人✨
+```Java
+// 具体业务错误码枚举实现
+public enum BusinessExceptionEnum implements StatusCode {
+
+    // 公共状态码
+    NONE(200, ""),
+    SUCCESS(200, "操作成功"),
+    DATA_UNCHANGED(200, "没有数据更新"),
+    SYSTEM_ERROR(500, "系统异常"),
+    PARAM_ERROR(400, "参数校验失败"),
+
+    // 对象模块错误码
+    NO_DATA(2000, "还没有数据"),
+    STUDENT_NOT_FOUND(2001, "未查找到学生"),
+    STUDENT_ID_EXISTED(2002, "所填学号已存在"),
+    STUDENT_CONTRACT_NUMBER_EXISTED(2003, "所填电话号码已存在"),
+    BOOK_NOT_FOUND(2004, "未查找到书籍"),
+    AVAILABLE_BOOK_NOT_FOUND(2005, "未查找到可借书籍"),
+    ALREADY_BORROWED_BOOK(2006, "不可重复借阅同一本书籍"),
+    BOOK_UNRETURNED(2007, "该书籍还未归还"),
+    UNEXISTED_RECORD(2008, "该记录不存在"),
+
+  	...
+```
+
+关于登录持久化，我直接用 JSON 序列化来解决，因为这个方法简单粗暴，这个项目比较简单，不用搞得很复杂，每次登录成功时，把唯一字段放进`user.json`，这样启动程序时就不用每次都要登录了，运行程序时，每次解析命令之前都会检查一遍`user.json`，如果文件被修改就会强制重新登录。再声明一下，这个方法简单粗暴，实际业务中不提倡这种方法
+
+```JSON
+{
+	"name":"作者是弱智",
+	"id":"000000000000",
+	"userType":"STUDENT"
+}
+```
+
+开发过程中，我遇到很多我自己解决不了的东西，首先没有 springboot 的无脑自动配置，像 logback mybaits 这样的依赖是需要自己配置的，手写配置很麻烦，参数格式都是不熟悉的，依赖一多起来，管理也会变得很麻烦，我使用这些工具是为了简化开发，不是增添麻烦，所以我要么多多借用浏览器搜索，看看别人的文档，复杂的配置任务，我则交给 AI。
+
+说说心态吧，我是一个大一新生，专业是计算机科学与技术，每天都忙得莫名奇妙的，一门课结课了还要我来写篇论文，写一篇报告，还有很多莫名其妙的破事......如果累了，或者说觉得完成了一点小功能，我也会停下来刷刷视频，刷一刷崩铁的每日之类的，休息不是罪过，是好文明。坐在电脑前，把学业，就业什么乱七八糟的抛到九霄之外后，我只是在干我喜欢，能让我感到快乐的事，即使编程一点也不轻松。人生是一种体验，我将这句我自己做的汤，送给每一位活在当下的人✨
 
 ---
 

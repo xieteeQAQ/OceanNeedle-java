@@ -25,17 +25,6 @@ create table if not exists admin (
     unique (phoneNumber)
 );
 
-create table if not exists developer (
-
-     id bigint not null auto_increment,
-     adminID char(12) not null,
-     password varchar(16) not null,
-     phoneNumber char(11) not null,
-     primary key (id),
-     unique (adminID),
-     unique (phoneNumber)
-);
-
 create table if not exists book (
 
     id bigint not null auto_increment,
