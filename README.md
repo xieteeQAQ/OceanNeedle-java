@@ -144,12 +144,19 @@ java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广�
 └── TESTING.md
 ```
 
+## 运行展示
+
+---
+
+![OceanNeedle](./picture/OceanNeedle.png)
+
 ## 如何运行
 
 ---
 
 - 由于我的开发平台是 mac，其他平台可能会有问题
-- 准备：无论你是哪个平台，都需要下载 java JDK 21+ 才能跑程序，还有 MySQL，不然核心命令（ls search del update ...）是跑不了的，会直接提示"程序异常"， 如果还需要自行打包，则需要 maven，如果都没有下载......这里准备了链接，不知道具体安装步骤的请看网上的教程
+- 准备：无论你是哪个平台，都需要下载 java JDK 21+ 才能跑程序，还有 MySQL，不然核心命令（ls search del update ...）是跑不了的，会直接提示"程序异常"
+- 本项目不直接提供 jar 包，需要 maven 来自行打包，如果都没有下载......这里准备了链接，不知道具体安装步骤的请看网上的教程
 
   - java JDK 下载: https://www.oracle.com/cn/java/technologies/downloads/
   - MySQL 下载: https://www.mysql.com/cn/products/community/
@@ -168,7 +175,7 @@ java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广�
   jdbc.username=<数据库用户名>
   jdbc.password=<数据库密码>
   ```
-- **macOS / Linux**：clone 仓库后运行启动脚本 (Linux 还未测试)
+- **macOS / Linux**：clone 仓库后运行 打包 & 启动 脚本`app.zsh` (Linux 未测试)
 
   ```zsh
   git clone https://github.com/xieteeQAQ/OceanNeedle-java.git
@@ -177,14 +184,7 @@ java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广�
   ```
 - **Windows 11**：
 
-  _方法一_ 直接运行已经打包好的 jar包
-
-  ```bat
-  java -jar target/OceanNeedle-java-1.0-SNAPSHOT.jar
-  # 如果不行就尝试方法二
-  ```
-
-  _方法二_ 通过脚本打包
+  通过脚本打包
 
   需要 JDK 21+ 和 Maven，双击 `build.bat` 一键打包
 
@@ -217,7 +217,6 @@ java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广�
 
 ---
 
-- 命令文档路径写死在代码中，当文件结构发生变动时，当前程序不会忽略异常而是一路上抛到`Main.java`
 - `help` 的命令文档和 `user.json` 都是用相对路径 `src/main/resources/...` 读取的，所以**不能在图方便的地方直接 `java -jar`**：`build.bat` 会把 `description/` 和 `user.json` 按同样的目录结构复制进 `dist`，再由 `run.bat` 先切换到该目录启动
 - `jdbc.properties` 会被一起打进 jar，里面的明文数据库密码也随之进入 jar / dist，不要把产物发给别人
 - `build.bat` / `run.bat` 里的提示只有英文：`.bat` 文件里写中文会让 cmd.exe 按代码页 + 字节偏移解析错位，出现 `'xx' is not recognized as an internal or external command`，所以宁可全用 ASCII
