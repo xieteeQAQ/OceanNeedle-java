@@ -14,18 +14,18 @@
 
 这是一个基于 Java 语言实现的图书馆管理系统CLI，目前有学生端和管理员双端，学生和管理员端都可以对书籍进行基本查询操作，而管理员可以完成对书籍的添加、状态更新、删除，除此之外，系统还有历史记录功能，学生和管理员都能查询
 
-|               功能               |               实现               |
-| :------------------------------: | :------------------------------: |
-|     学生查询、借阅、归还书籍     |                ✅                |
-| 管理员查询、更新、新增、删除书籍 |                ✅                |
-|            DEBUG模式             |           ✅(功能较少)           |
-|           历史记录查询           |                ✅                |
-|             错误处理             |                ✅                |
-|             权限约束             |                ✅                |
-|     持久化登录 (Remember Me)     |                ✅                |
-|           登录失效检查           |                ✅                |
-|      命令补全 命令历史记录       |                ✅                |
-|             命令指南             |                ✅                |
+|               功能               |                实现                |
+| :------------------------------: | :--------------------------------: |
+|     学生查询、借阅、归还书籍     |                 ✅                 |
+| 管理员查询、更新、新增、删除书籍 |                 ✅                 |
+|            DEBUG模式            |            ✅(功能较少)            |
+|           历史记录查询           |                 ✅                 |
+|             错误处理             |                 ✅                 |
+|             权限约束             |                 ✅                 |
+|     持久化登录 (Remember Me)     |                 ✅                 |
+|           登录失效检查           |                 ✅                 |
+|      命令补全 命令历史记录      |                 ✅                 |
+|             命令指南             |                 ✅                 |
 |              跨平台              | ⚠️可跨 windows mac<br />但不稳定 |
 
 ## 依赖 / 技术栈
@@ -144,18 +144,17 @@
 
 - 由于我的开发平台是 mac，其他平台可能会有问题
 - 准备：无论你是哪个平台，都需要下载 java JDK 21+ 才能跑程序，还有 MySQL，不然核心命令（ls search del update ...）是跑不了的，会直接提示"程序异常"， 如果还需要自行打包，则需要 maven，如果都没有下载......这里准备了链接，不知道具体安装步骤的请看网上的教程
+
   - java JDK 下载: https://www.oracle.com/cn/java/technologies/downloads/
   - MySQL 下载: https://www.mysql.com/cn/products/community/
   - maven 下载: https://learn.microsoft.com/zh-cn/java/openjdk/download
-
 - 然后确保 MySQL 服务启动，在终端执行这条命令
 
   ```bash
   mysql -u root -p --default-character-set=utf8mb4 < init.sql
   # 然后输入你的用户密码
   ```
-
-- 找到 src/main/resources/jdbc.properties.example 这个配置文件，按提示填好你的数据库信息
+- 找到 src/main/resources/jdbc.properties.example 这个配置文件，按提示填好你的数据库信息，然后**删掉.example后缀**
 
   ```text
   jdbc.driver=com.mysql.cj.jdbc.Driver
@@ -163,7 +162,6 @@
   jdbc.username=<数据库用户名>
   jdbc.password=<数据库密码>
   ```
-
 - **macOS / Linux**：clone 仓库后运行启动脚本 (Linux 还未测试)
 
   ```zsh
@@ -171,7 +169,6 @@
   cd ./OceanNeedle-java
   zsh ./app.zsh
   ```
-
 - **Windows 11**：
 
   _方法一_ 直接运行已经打包好的 jar包
@@ -188,6 +185,7 @@
   > `pom.xml` 里给 `maven-compiler-plugin` 显式配置了 `annotationProcessorPaths`（注册 Lombok）。
   > 因为 **JDK 23 起 javac 不再自动扫描 classpath 上的注解处理器**，不配置的话在 JDK 25/27 上
   > 会编译失败，报一大片「找不到符号」—— `@Data` / `@Getter` 生成的 getter、setter 全部消失。
+  >
 
   ```bat
   build.bat                 # 编译 + 打包 + 组装运行目录 + 生成 zip
@@ -197,15 +195,17 @@
 
   打包产物：
 
-  | 路径                                       | 说明                                           |
-  | ------------------------------------------ | ---------------------------------------------- |
-  | `target\OceanNeedle-java-1.0-SNAPSHOT.jar` | 可执行 jar，`Class-Path` 指向 `lib/`           |
+  | 路径                                         | 说明                                           |
+  | -------------------------------------------- | ---------------------------------------------- |
+  | `target\OceanNeedle-java-1.0-SNAPSHOT.jar` | 可执行 jar，`Class-Path` 指向 `lib/`       |
   | `target\lib\`                              | 运行期依赖，共 15 个 jar                       |
   | `dist\OceanNeedle-win64\`                  | 可直接运行的目录（jar + lib + run.bat + 文档） |
   | `dist\OceanNeedle-win64.zip`               | 分发包                                         |
 
+
   > `build.bat` 会检查 JDK 版本、Maven、`jdbc.properties` 是否存在；
   > 缺少 `jdbc.properties` 时会自动从 `jdbc.properties.example` 生成一份，然后停下来等你填密码。
+  >
 
 ## 已知问题
 
