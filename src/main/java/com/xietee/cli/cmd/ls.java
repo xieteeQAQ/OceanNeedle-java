@@ -111,14 +111,14 @@ public class ls implements Cmd {
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(visualized);
 
-            return Result.success(NONE);
+            return Result.success("已列出数据", null);
         } else if (object.equals("student") || object.equals("2")) {
             List<Student> allStudents = app.getAdminService().findAllStudent();
             List<String> visualized = allStudents.stream().map(Student::toString).toList();
             ui.consoleWriteTitle("查询结果");
             ui.consoleWriteList(visualized);
 
-            return Result.success(NONE);
+            return Result.success("已列出数据", null);
         } else {
             return Result.warn(FEATURE_NOT_DEVELOPED);
         }
