@@ -10,9 +10,9 @@
 
 ## 标签
 
-java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广东海洋大学
-
 ---
+
+java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广东海洋大学
 
 ## 简介
 
