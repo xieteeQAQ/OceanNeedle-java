@@ -3,7 +3,6 @@ package com.xietee.cli;
 public enum UserType {
     STUDENT("STUDENT"),
     ADMIN("ADMIN"),
-    DEVELOPER("DEVELOPER"),
     NULL("NULL");
 
     private final String userType;
@@ -23,9 +22,6 @@ public enum UserType {
             }
             case "ADMIN" -> {
                 return ADMIN;
-            }
-            case "DEVELOPER" -> {
-                return DEVELOPER;
             }
             default -> {
                 return NULL;

@@ -38,7 +38,7 @@ public class history implements Cmd {
                 records = app.getStudentService().findAllRecordByStudentID(studentID);
             }
 
-        } else if (App.getUser() == UserType.ADMIN) {
+        } else if (App.getUser() == UserType.ADMIN || App.isDEBUG()) {
 
             if (onlyUnReturned) {
                 records = app.getAdminService().findUnReturnedRecord();
@@ -46,8 +46,6 @@ public class history implements Cmd {
                 records = app.getAdminService().findAllRecord();
             }
 
-        } else if (App.getUser() == UserType.DEVELOPER) {
-            return Result.warn(FEATURE_NOT_DEVELOPED);
         } else {
             throw new LoginException(LOGIN_SESSION_EXPIRED);
         }

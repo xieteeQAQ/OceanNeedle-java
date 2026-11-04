@@ -62,7 +62,7 @@ public class AppUI implements AutoCloseable {
             "更新           --update",
             "新增           --add",
             "删除           --del",
-            "命令用法        --help"));
+            "命令指南        --help"));
 
     public void showBanner() {
         terminal.writer().println("\n".repeat(2) + AnsiColors.CYAN + BANNER + AnsiColors.RESET);

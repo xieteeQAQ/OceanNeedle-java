@@ -7,10 +7,7 @@ import com.xietee.entity.Book;
 import com.xietee.entity.Student;
 import com.xietee.ui.AppUI;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
 
@@ -32,39 +29,31 @@ public class search implements Cmd {
             "student", "book", "admin", "developer"
     ));
 
-    private static final String optionForStudent = "要搜搜的对象是? \n[0]取消 \n[1]书籍";
-    private static final String optionForAdmin = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
-    private static final String optionForDeveloper = "要搜搜的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]管理员 \n[4]开发者";
+    private static final String optionForStudent = "要搜索的对象是? \n[0]取消 \n[1]书籍";
+    private static final String optionForAdmin = "要搜索的对象是? \n[0]取消 \n[1]书籍 \n[2]学生";
+    private static final String optionForDeveloper = "要搜索的对象是? \n[0]取消 \n[1]书籍 \n[2]学生 \n[3]管理员 \n[4]开发者";
 
     public search() {
     }
 
     private String getOption() {
-        switch (App.getUser()) {
-            case DEVELOPER -> {
-                return optionForDeveloper;
-            }
-            case ADMIN -> {
-                return optionForAdmin;
-            }
-            default -> {
-                return optionForStudent;
-            }
+
+        if (App.isDEBUG()) {
+            return optionForDeveloper;
+        } else if (Objects.requireNonNull(App.getUser()) == UserType.ADMIN) {
+            return optionForAdmin;
         }
+        return optionForStudent;
     }
 
     private boolean objectsContains(String object) {
-        switch (App.getUser()) {
-            case DEVELOPER -> {
-                return objectsForDeveloper.contains(object);
-            }
-            case ADMIN -> {
-                return objectsForAdmin.contains(object);
-            }
-            default -> {
-                return objectsForStudent.contains(object);
-            }
+
+        if (App.isDEBUG()) {
+            return objectsForDeveloper.contains(object);
+        } else if (Objects.requireNonNull(App.getUser()) == UserType.ADMIN) {
+            return objectsForAdmin.contains(object);
         }
+        return objectsForStudent.contains(object);
     }
 
     @Override

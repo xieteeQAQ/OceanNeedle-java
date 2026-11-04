@@ -120,15 +120,6 @@ class CommandTest {
         assertEquals(COMMAND_ERROR.getCode(), parseAs(UserType.ADMIN, "ret -i 1").code());
     }
 
-    @Test
-    @DisplayName("开发者：当前权限尚未开放，所有命令都返回 COMMAND_ERROR")
-    void developerHasNoCommandsYet() {
-        for (String line : new String[]{"help", "ls -o book", "add -o book", "borrow -i 1"}) {
-            assertEquals(COMMAND_ERROR.getCode(),
-                    parseAs(UserType.DEVELOPER, line).code(), line + " 应该不可用");
-        }
-    }
-
     // ------------------------------------------------------------ ls / search
 
     @Test

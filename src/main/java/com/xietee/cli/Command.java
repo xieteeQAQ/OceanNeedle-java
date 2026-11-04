@@ -36,6 +36,15 @@ public class Command {
 
     private Optional<Cmd> getCommand(String commandName) {
 
+        if (App.isDEBUG()) {
+            if (GeneralCommandsMap.containsKey(commandName)) {
+                return Optional.ofNullable(GeneralCommandsMap.get(commandName));
+            } else if (StudentCommandsMap.containsKey(commandName)) {
+                return Optional.ofNullable(StudentCommandsMap.get(commandName));
+            }
+            return Optional.ofNullable(AdminCommandsMap.get(commandName));
+        }
+
         switch (App.getUser()) {
             case NULL -> {
                 return Optional.ofNullable(GeneralCommandsMap.get(commandName));
@@ -49,10 +58,6 @@ public class Command {
                 return GeneralCommandsMap.containsKey(commandName) ?
                         Optional.ofNullable(GeneralCommandsMap.get(commandName)) :
                         Optional.ofNullable(AdminCommandsMap.get(commandName));
-            }
-            case DEVELOPER -> {
-                // 待开发
-                return Optional.empty();
             }
             default -> {
                 return Optional.empty();

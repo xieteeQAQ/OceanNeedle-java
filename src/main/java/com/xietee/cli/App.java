@@ -25,6 +25,8 @@ public class App {
 
     @Getter private static UserType user;
 
+    @Getter private static boolean DEBUG;
+
     @Getter private final StudentService studentService;
     @Getter private final AdminService adminService;
     @Getter private final LoginService loginService;
@@ -41,6 +43,7 @@ public class App {
         this.loginService = loginService;
         this.ui = new AppUI();
         user = UserType.NULL;
+        DEBUG = false;
         this.command = new Command();
 
         this.ui.initTerminal();
@@ -101,6 +104,10 @@ public class App {
                     // 每次读取命令前都检查登录是否失效
                     checkLoginSessionStatus();
                     if (line.isEmpty()) {
+                        continue;
+                    } else if (line.equals("debug")) {
+                        DEBUG = !DEBUG;
+                        prompt = DEBUG ? "Command! > " : "Command > ";
                         continue;
                     }
 

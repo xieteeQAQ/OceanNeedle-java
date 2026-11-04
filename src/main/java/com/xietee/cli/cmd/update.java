@@ -1,7 +1,6 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
-import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.dto.BookUpdateDTO;
 import com.xietee.dto.StudentUpdateDTO;
@@ -14,7 +13,6 @@ import com.xietee.util.numberUtils;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
@@ -38,14 +36,14 @@ public class update implements Cmd {
     public update() {}
 
     private String getOption() {
-        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+        if (App.isDEBUG()) {
             return optionForDeveloper;
         }
         return optionForAdmin;
     }
 
     private boolean objectsContains(String object) {
-        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+        if (App.isDEBUG()) {
             return objectsForDeveloper.contains(object);
         }
         return objectsForAdmin.contains(object);

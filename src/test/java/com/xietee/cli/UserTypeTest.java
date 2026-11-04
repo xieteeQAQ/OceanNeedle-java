@@ -15,7 +15,6 @@ class UserTypeTest {
     void getString() {
         assertEquals("STUDENT", UserType.STUDENT.getString());
         assertEquals("ADMIN", UserType.ADMIN.getString());
-        assertEquals("DEVELOPER", UserType.DEVELOPER.getString());
         assertEquals("NULL", UserType.NULL.getString());
     }
 
@@ -24,7 +23,6 @@ class UserTypeTest {
     void mapKnownTypes() {
         assertEquals(UserType.STUDENT, UserType.map("STUDENT"));
         assertEquals(UserType.ADMIN, UserType.map("ADMIN"));
-        assertEquals(UserType.DEVELOPER, UserType.map("DEVELOPER"));
         assertEquals(UserType.NULL, UserType.map("NULL"));
     }
 

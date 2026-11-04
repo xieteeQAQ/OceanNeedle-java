@@ -1,7 +1,6 @@
 package com.xietee.cli.cmd;
 
 import com.xietee.cli.App;
-import com.xietee.cli.UserType;
 import com.xietee.common.Result;
 import com.xietee.dto.BookSaveDTO;
 import com.xietee.dto.StudentSaveDTO;
@@ -12,7 +11,6 @@ import com.xietee.util.ValidationUtils;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.xietee.exception.BusinessExceptionEnum.*;
@@ -31,7 +29,7 @@ public class add implements Cmd {
     public add() {}
 
     private boolean objectsContains(String object) {
-        if (Objects.requireNonNull(App.getUser()) == UserType.DEVELOPER) {
+        if (App.isDEBUG()) {
             return objectsForDeveloper.contains(object);
         }
         return objectsForAdmin.contains(object);

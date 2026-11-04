@@ -25,13 +25,14 @@ public class StatusBar {
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
-                        "%s[%s] %s%s: %s%s",
+                        "%s[%s] %s%s:%s %s %s",
                         AnsiColors.BRIGHT_BLACK,
                         timestamp,
                         AnsiColors.BRIGHT_WHITE,
                         "info",
                         AnsiColors.RESET,
-                        content);
+                        content,
+                        AnsiColors.RESET);
         sent(message);
     }
 
@@ -41,13 +42,13 @@ public class StatusBar {
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
-                        "%s[%s] %s%s: %s%s",
-                        AnsiColors.BRIGHT_BLACK,
+                        "%s %s %s %s | %s %s",
+                        AnsiColors.BLACK__BRIGHT_GREEN,
+                        "S",
+                        AnsiColors.BLACK__WHITE,
                         timestamp,
-                        AnsiColors.BRIGHT_GREEN,
-                        "success",
-                        AnsiColors.RESET,
-                        content);
+                        content,
+                        AnsiColors.RESET);
         sent(message);
     }
 
@@ -57,13 +58,13 @@ public class StatusBar {
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
-                        "%s[%s] %s%s: %s%s",
-                        AnsiColors.BRIGHT_BLACK,
+                        "%s %s %s %s | %s %s",
+                        AnsiColors.BLACK__BRIGHT_YELLOW,
+                        "W",
+                        AnsiColors.BLACK__WHITE,
                         timestamp,
-                        AnsiColors.BRIGHT_YELLOW,
-                        "warning",
-                        AnsiColors.RESET,
-                        content);
+                        content,
+                        AnsiColors.RESET);
         sent(message);
     }
 
@@ -73,13 +74,13 @@ public class StatusBar {
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
-                        "%s[%s] %s%s: %s%s",
-                        AnsiColors.BRIGHT_BLACK,
+                        "%s %s %s %s | %s %s",
+                        AnsiColors.BLACK__BRIGHT_RED,
+                        "E",
+                        AnsiColors.BLACK__WHITE,
                         timestamp,
-                        AnsiColors.BRIGHT_RED,
-                        "error",
-                        AnsiColors.RESET,
-                        content);
+                        content,
+                        AnsiColors.RESET);
         sent(message);
     }
 
@@ -89,7 +90,7 @@ public class StatusBar {
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String message =
                 String.format(
-                        "%s[%s] %s%s: %s%s",
+                        "%s[%s] %s%s:%s%s",
                         AnsiColors.BRIGHT_BLACK,
                         timestamp,
                         AnsiColors.BRIGHT_BLUE,

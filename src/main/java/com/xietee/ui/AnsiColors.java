@@ -22,4 +22,7 @@ public class AnsiColors {
 
         // 底色 命名规则: <text_color>__<background_color>
         public static final String BLACK__WHITE = "\033[30;47m";
+        public static final String BLACK__BRIGHT_RED = "\033[30;101m";
+        public static final String BLACK__BRIGHT_YELLOW = "\033[30;103m";
+        public static final String BLACK__BRIGHT_GREEN = "\033[30;102m";
 }
