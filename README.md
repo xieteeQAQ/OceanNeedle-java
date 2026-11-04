@@ -8,6 +8,12 @@
 
 本项目参考了 [@Jessamine](https://github.com/zengxinyueooo) 大佬的开源项目[🔗ThoughtCoding](https://github.com/zengxinyueooo/ThoughtCoding)，感谢大佬开源，开源万岁🤚😭🤚
 
+## 标签
+
+java, jline, MySQL, MyBatis, CLI, 命令行, 入门, 图书馆管理系统, 广东海洋大学
+
+---
+
 ## 简介
 
 ---
